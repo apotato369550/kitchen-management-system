@@ -1,3 +1,4 @@
 django
 psycopg2-binary
 python-dotenv
+django-axes>=6.0.0

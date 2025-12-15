@@ -8,11 +8,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Planned
-- Authentication system implementation
 - Raw materials + production tracker UI
 - Purchase order tracker UI
-- Tailwind CSS integration
-- User management interface
+
+## [0.2.0] - 2025-12-15
+
+### Added
+- Complete authentication system with Django's built-in auth
+- `accounts` app with user management functionality
+- User groups: Admin and Management
+- Login/logout views with custom authentication form
+- User management interface (admin-only):
+  - User list view with status and role indicators
+  - User creation form with role selection
+  - User edit form with role management
+  - User deletion with confirmation
+- Permission decorators:
+  - `@admin_required` - Restricts views to Admin group
+  - `@management_or_admin_required` - Restricts to Management or Admin
+- Login throttling with django-axes (5 failed attempts, 1-hour lockout)
+- Dashboard view with authentication requirement
+- Management command `setup_auth` to create groups and default admin
+- Tailwind CSS integration via CDN
+- Professional UI templates:
+  - Base template with navigation and messages
+  - Login page with clean form design
+  - User management pages with tables and forms
+  - Dashboard with feature cards
+- Password validation (minimum 10 characters)
+- Security settings configured for production (HTTPS, secure cookies)
+- Authentication backends configuration
+
+### Changed
+- Updated `core/views.py` to use `@login_required` decorator
+- Changed root URL from "Hello World" to protected dashboard
+- Updated `requirements.txt` to include `django-axes>=6.0.0`
+- Enhanced settings.py with:
+  - LOGIN_URL, LOGIN_REDIRECT_URL, LOGOUT_REDIRECT_URL
+  - AUTHENTICATION_BACKENDS with django-axes
+  - Stronger password validation (10 character minimum)
+  - Production security settings (commented for development)
+
+### Security
+- Implemented login rate limiting (django-axes)
+- Added CSRF protection on all forms
+- Password complexity requirements enforced
+- Session security configured
+- Production HTTPS settings prepared
 
 ## [0.1.0] - 2025-12-15
 
