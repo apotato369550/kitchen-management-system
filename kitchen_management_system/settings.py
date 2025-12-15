@@ -82,10 +82,13 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'postgres',
-        'USER': 'postgres',
+        'USER': os.getenv('SUPABASE_USER', 'postgres'),
         'PASSWORD': os.getenv('SUPABASE_PROJECT_PASSWORD'),
         'HOST': os.getenv('SUPABASE_HOST', 'localhost'),
-        'PORT': '5432',
+        'PORT': os.getenv('SUPABASE_PORT', '5432'),
+        'OPTIONS': {
+            'connect_timeout': 10,
+        },
     }
 }
 
