@@ -1,0 +1,63 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}Product Types - Kitchen Management System{% endblock %}
+
+{% block content %}
+<div class="mb-8 flex justify-between items-center">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-900">Product Types</h1>
+        <p class="mt-2 text-sm text-gray-600">Manage your product catalog</p>
+    </div>
+    <a href="{% url 'product_type_create' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
+        Add Product Type
+    </a>
+</div>
+
+<!-- Product Types Table -->
+{% if products %}
+<div class="bg-white shadow overflow-hidden rounded-lg">
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+            <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Name
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Description
+                </th>
+                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                </th>
+            </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+            {% for product in products %}
+            <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    {{ product.name }}
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500">
+                    {{ product.description|truncatewords:10 }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <a href="{% url 'product_type_edit' product.pk %}" class="text-blue-600 hover:text-blue-900 mr-4">
+                        Edit
+                    </a>
+                    <a href="{% url 'product_type_delete' product.pk %}" class="text-red-600 hover:text-red-900">
+                        Delete
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="bg-white shadow rounded-lg p-8 text-center">
+    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+    </svg>
+    <p class="mt-4 text-gray-600">No product types found. <a href="{% url 'product_type_create' %}" class="text-blue-600 hover:text-blue-900">Add one now</a>.</p>
+</div>
+{% endif %}
+{% endblock %}
