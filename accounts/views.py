@@ -1,9 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import login, logout, authenticate, update_session_auth_hash
 from django.contrib.auth.models import User
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.urls import reverse
-from .forms import UserCreateForm, UserEditForm, CustomAuthenticationForm
+from .forms import UserCreateForm, UserEditForm, CustomAuthenticationForm, CustomPasswordChangeForm
 from .decorators import admin_required
 
 
@@ -102,3 +103,28 @@ def user_delete(request, pk):
         return redirect('user_list')
 
     return render(request, 'accounts/user_confirm_delete.html', {'user_obj': user})
+
+
+@login_required
+def profile_view(request):
+    """User profile view"""
+    return render(request, 'accounts/profile.html', {'user_obj': request.user})
+
+
+@login_required
+def change_password_view(request):
+    """Change password view"""
+    if request.method == 'POST':
+        form = CustomPasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            # Keep the user logged in after password change
+            update_session_auth_hash(request, user)
+            messages.success(request, 'Your password has been changed successfully.')
+            return redirect('profile')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = CustomPasswordChangeForm(request.user)
+
+    return render(request, 'accounts/change_password.html', {'form': form})
