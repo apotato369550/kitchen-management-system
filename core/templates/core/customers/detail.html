@@ -1,0 +1,95 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}{{ customer.name }} - Kitchen Management System{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <a href="{% url 'customer_list' %}" class="text-sm text-blue-600 hover:text-blue-900 mb-4 inline-block">
+        &larr; Back to Customers
+    </a>
+</div>
+
+<!-- Customer Info -->
+<div class="bg-white shadow rounded-lg p-6 mb-8">
+    <div class="flex justify-between items-start">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">{{ customer.name }}</h1>
+            <div class="mt-4 space-y-2">
+                <p class="text-sm text-gray-600">
+                    <span class="font-medium text-gray-900">Contact:</span> {{ customer.contact_info|default:"—" }}
+                </p>
+                <p class="text-sm text-gray-600">
+                    <span class="font-medium text-gray-900">Customer Since:</span> {{ customer.created_at|date:"M d, Y" }}
+                </p>
+                <p class="text-sm text-gray-600">
+                    <span class="font-medium text-gray-900">Total Orders:</span> {{ customer.purchase_orders.count }}
+                </p>
+            </div>
+        </div>
+        <div class="flex gap-3">
+            <a href="{% url 'customer_edit' customer.pk %}" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                Edit Customer
+            </a>
+            <a href="{% url 'customer_delete' customer.pk %}" class="inline-flex items-center px-4 py-2 border border-red-300 text-sm font-medium rounded-md text-red-700 bg-white hover:bg-red-50">
+                Delete
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Purchase Orders -->
+<div class="bg-white shadow rounded-lg">
+    <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+        <h2 class="text-xl font-semibold text-gray-900">Purchase Orders</h2>
+        <a href="{% url 'order_create' %}?customer={{ customer.pk }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
+            Create New Order
+        </a>
+    </div>
+
+    {% if orders %}
+    <div class="divide-y divide-gray-200">
+        {% for order in orders %}
+        <div class="px-6 py-4 hover:bg-gray-50">
+            <div class="flex justify-between items-start">
+                <div class="flex-1">
+                    <div class="flex items-center gap-3 mb-2">
+                        <a href="{% url 'order_detail' order.pk %}" class="text-lg font-medium text-blue-600 hover:text-blue-900">
+                            {{ order.po_number }}
+                        </a>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                            {% if order.status == 'pending' %}bg-gray-100 text-gray-800
+                            {% elif order.status == 'in_progress' %}bg-yellow-100 text-yellow-800
+                            {% elif order.status == 'completed' %}bg-green-100 text-green-800
+                            {% elif order.status == 'cancelled' %}bg-red-100 text-red-800
+                            {% endif %}">
+                            {{ order.get_status_display }}
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-6 text-sm text-gray-600">
+                        <span>{{ order.items_count }} item{{ order.items_count|pluralize }}</span>
+                        <span>Created {{ order.created_at|date:"M d, Y" }}</span>
+                        <span>Updated {{ order.updated_at|date:"M d, Y" }}</span>
+                    </div>
+                    <div class="mt-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-full bg-gray-200 rounded-full h-2.5 max-w-md">
+                                <div class="bg-blue-600 h-2.5 rounded-full" style="width: {{ order.overall_progress }}%"></div>
+                            </div>
+                            <span class="text-sm text-gray-600 whitespace-nowrap">{{ order.overall_progress|floatformat:0 }}%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="px-6 py-8 text-center">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+        <p class="mt-4 text-gray-600">No orders yet. <a href="{% url 'order_create' %}?customer={{ customer.pk }}" class="text-blue-600 hover:text-blue-900">Create first order</a>.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

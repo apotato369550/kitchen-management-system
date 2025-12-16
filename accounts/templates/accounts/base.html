@@ -7,84 +7,222 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .form-input {
-            @apply mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2 border;
+            @apply mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 px-4 py-2 border;
         }
         .form-select {
-            @apply mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2 border;
+            @apply mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 px-4 py-2 border;
         }
         .form-checkbox {
-            @apply rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500;
+            @apply rounded border-gray-300 text-amber-600 shadow-sm focus:border-amber-500 focus:ring-amber-500;
         }
         .form-textarea {
-            @apply mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2 border;
+            @apply mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 px-4 py-2 border;
+        }
+        .nav-group-title {
+            @apply text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2;
+        }
+        .nav-item {
+            @apply block px-4 py-2.5 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition;
+        }
+        .nav-item.active {
+            @apply bg-amber-50 text-amber-700 border-l-4 border-amber-600;
         }
     </style>
+    <script>
+        function toggleMenu(id) {
+            const menu = document.getElementById(id);
+            menu.classList.toggle('hidden');
+        }
+    </script>
 </head>
 <body class="bg-gray-50 min-h-screen">
     {% if user.is_authenticated %}
-    <nav class="bg-white shadow-sm border-b border-gray-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex">
-                    <div class="flex-shrink-0 flex items-center">
-                        <h1 class="text-xl font-bold text-gray-900">Kitchen Management</h1>
+    <!-- Modern Sidebar Navigation -->
+    <div class="flex h-screen bg-gray-50">
+        <!-- Sidebar -->
+        <div class="w-64 bg-white shadow-sm border-r border-gray-200 flex flex-col">
+            <!-- Logo/Brand -->
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex items-center gap-2">
+                    <div class="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">
+                        🍳
                     </div>
-                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
-                        <a href="{% url 'dashboard' %}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                            Dashboard
-                        </a>
-                        <a href="{% url 'raw_material_list' %}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                            Raw Materials
-                        </a>
-                        <a href="{% url 'consumption_history' %}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                            Consumption
-                        </a>
-                        <a href="{% url 'product_type_list' %}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                            Production
-                        </a>
-                        {% if user.groups.all.0.name == 'Admin' %}
-                        <a href="{% url 'user_list' %}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                            Users
-                        </a>
-                        {% endif %}
-                    </div>
-                </div>
-                <div class="flex items-center gap-4">
-                    <div class="text-right">
-                        <p class="text-sm font-medium text-gray-900">
-                            {{ user.first_name|default:user.username }}
-                        </p>
-                        {% if user.groups.all.0 %}
-                        <p class="text-xs text-gray-500">{{ user.groups.all.0.name }}</p>
-                        {% endif %}
-                    </div>
-                    <div class="flex gap-3 border-l border-gray-300 pl-3">
-                        <a href="{% url 'profile' %}" class="text-sm text-gray-700 hover:text-gray-900">
-                            Profile
-                        </a>
-                        <a href="{% url 'logout' %}" class="text-sm text-gray-700 hover:text-gray-900">
-                            Logout
-                        </a>
+                    <div>
+                        <h1 class="text-lg font-bold text-gray-900">KitchenHub</h1>
+                        <p class="text-xs text-gray-500">Management System</p>
                     </div>
                 </div>
             </div>
-        </div>
-    </nav>
-    {% endif %}
 
-    {% if messages %}
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
-        {% for message in messages %}
-        <div class="rounded-md p-4 mb-4 {% if message.tags == 'success' %}bg-green-50 text-green-800 border border-green-200{% elif message.tags == 'error' %}bg-red-50 text-red-800 border border-red-200{% else %}bg-blue-50 text-blue-800 border border-blue-200{% endif %}">
-            {{ message }}
+            <!-- Navigation -->
+            <nav class="flex-1 overflow-y-auto py-4">
+                <!-- Main -->
+                <div>
+                    <div class="nav-group-title">Main</div>
+                    <a href="{% url 'dashboard' %}" class="nav-item">
+                        <span class="flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-3m0 0l7-4 7 4M5 9v10a1 1 0 001 1h12a1 1 0 001-1V9m-9 16l-7-4m0 0V5m7 4l7-4"></path></svg>
+                            Dashboard
+                        </span>
+                    </a>
+                </div>
+
+                <!-- Operations -->
+                <div class="mt-8">
+                    <div class="nav-group-title">Operations</div>
+
+                    <!-- Raw Materials Section -->
+                    <div>
+                        <button onclick="toggleMenu('materials-menu')" class="w-full nav-item flex items-center justify-between hover:bg-amber-50 hover:text-amber-700">
+                            <span class="flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                                Raw Materials
+                            </span>
+                            <svg class="w-4 h-4 transition" id="materials-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                        </button>
+                        <div id="materials-menu" class="bg-gray-50 space-y-1 pl-4">
+                            <a href="{% url 'raw_material_list' %}" class="nav-item text-xs">
+                                📦 Library
+                            </a>
+                            <a href="{% url 'consumption_history' %}" class="nav-item text-xs">
+                                📊 Consumption
+                            </a>
+                            <a href="{% url 'consumption_create' %}" class="nav-item text-xs bg-green-50 text-green-700 font-medium">
+                                ➕ Record Now
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Production Section -->
+                    <div class="mt-2">
+                        <button onclick="toggleMenu('production-menu')" class="w-full nav-item flex items-center justify-between hover:bg-amber-50 hover:text-amber-700">
+                            <span class="flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                                Production
+                            </span>
+                            <svg class="w-4 h-4 transition" id="production-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                        </button>
+                        <div id="production-menu" class="bg-gray-50 space-y-1 pl-4">
+                            <a href="{% url 'product_type_list' %}" class="nav-item text-xs">
+                                📋 Product Types
+                            </a>
+                            <a href="{% url 'production_history' %}" class="nav-item text-xs">
+                                📈 History
+                            </a>
+                            <a href="{% url 'production_create' %}" class="nav-item text-xs bg-green-50 text-green-700 font-medium">
+                                ➕ Record Now
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sales -->
+                <div class="mt-8">
+                    <div class="nav-group-title">Sales</div>
+
+                    <!-- Customers Section -->
+                    <a href="{% url 'customer_list' %}" class="nav-item">
+                        <span class="flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-2a6 6 0 0112 0v2zm0 0h6v-2a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                            Customers
+                        </span>
+                    </a>
+
+                    <!-- Purchase Orders Section -->
+                    <div class="mt-2">
+                        <button onclick="toggleMenu('orders-menu')" class="w-full nav-item flex items-center justify-between hover:bg-amber-50 hover:text-amber-700">
+                            <span class="flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                Orders
+                            </span>
+                            <svg class="w-4 h-4 transition" id="orders-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                        </button>
+                        <div id="orders-menu" class="bg-gray-50 space-y-1 pl-4">
+                            <a href="{% url 'purchase_order_list' %}" class="nav-item text-xs">
+                                📋 All Orders
+                            </a>
+                            <a href="{% url 'purchase_order_create' %}" class="nav-item text-xs bg-green-50 text-green-700 font-medium">
+                                ➕ New Order
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin -->
+                {% if user.groups.all.0.name == 'Admin' %}
+                <div class="mt-8">
+                    <div class="nav-group-title">Admin</div>
+                    <a href="{% url 'user_list' %}" class="nav-item">
+                        <span class="flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-2a6 6 0 0112 0v2zm0 0h6v-2a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                            User Management
+                        </span>
+                    </a>
+                </div>
+                {% endif %}
+            </nav>
+
+            <!-- User Profile (Bottom) -->
+            <div class="p-4 border-t border-gray-200 bg-gradient-to-r from-amber-50 to-orange-50">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <p class="text-sm font-semibold text-gray-900">
+                            {{ user.first_name|default:user.username }}
+                        </p>
+                        {% if user.groups.all.0 %}
+                        <p class="text-xs text-amber-700 font-medium">{{ user.groups.all.0.name }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="w-10 h-10 bg-amber-200 rounded-full flex items-center justify-center text-amber-700 font-bold">
+                        {{ user.first_name|default:user.username|first|upper }}
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <a href="{% url 'profile' %}" class="block w-full text-center px-3 py-2 text-sm font-medium text-gray-700 bg-white rounded-lg hover:bg-gray-100 border border-gray-200 transition">
+                        👤 Profile
+                    </a>
+                    <a href="{% url 'logout' %}" class="block w-full text-center px-3 py-2 text-sm font-medium text-red-700 bg-red-50 rounded-lg hover:bg-red-100 border border-red-200 transition">
+                        🚪 Logout
+                    </a>
+                </div>
+            </div>
         </div>
-        {% endfor %}
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Messages -->
+            {% if messages %}
+            <div class="px-8 pt-4">
+                {% for message in messages %}
+                <div class="rounded-lg p-4 mb-4 {% if message.tags == 'success' %}bg-green-50 text-green-800 border border-green-200{% elif message.tags == 'error' %}bg-red-50 text-red-800 border border-red-200{% else %}bg-blue-50 text-blue-800 border border-blue-200{% endif %}">
+                    <div class="flex items-center gap-2">
+                        {% if message.tags == 'success' %}
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                        {% elif message.tags == 'error' %}
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
+                        {% else %}
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+                        {% endif %}
+                        {{ message }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Page Content -->
+            <main class="flex-1 overflow-y-auto px-8 py-8">
+                {% block content %}
+                {% endblock %}
+            </main>
+        </div>
     </div>
-    {% endif %}
-
+    {% else %}
+    <!-- Non-authenticated content -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {% block content %}
         {% endblock %}
     </main>
+    {% endif %}
 </body>
 </html>

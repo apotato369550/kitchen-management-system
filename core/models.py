@@ -95,6 +95,49 @@ class PurchaseOrder(models.Model):
     def __str__(self):
         return f"PO-{str(self.id)[:8]} - {self.customer.name}"
 
+    @property
+    def po_number(self):
+        """Get PO number based on ID"""
+        return f"PO-{str(self.id)[:8].upper()}"
+
+    @property
+    def overall_progress(self):
+        """Calculate overall fulfillment progress"""
+        items = self.items.all()
+        if not items:
+            return 0
+        total_ordered = sum(item.quantity_ordered for item in items)
+        total_fulfilled = sum(item.quantity_fulfilled for item in items)
+        if total_ordered == 0:
+            return 0
+        return (total_fulfilled / total_ordered) * 100
+
+    @property
+    def is_fully_fulfilled(self):
+        """Check if all items are fully fulfilled"""
+        items = self.items.all()
+        if not items:
+            return False
+        return all(item.is_fulfilled for item in items)
+
+    @property
+    def items_count(self):
+        """Get count of line items"""
+        return self.items.count()
+
+    def update_status_based_on_fulfillment(self):
+        """Auto-update status based on fulfillment"""
+        if self.status == 'cancelled':
+            return  # Don't change cancelled orders
+
+        if self.is_fully_fulfilled:
+            self.status = 'completed'
+        elif self.overall_progress > 0:
+            self.status = 'in_progress'
+        else:
+            self.status = 'pending'
+        self.save(update_fields=['status'])
+
     class Meta:
         db_table = 'purchase_orders'
         ordering = ['-created_at']
@@ -109,6 +152,23 @@ class PurchaseOrderItem(models.Model):
 
     def __str__(self):
         return f"{self.product_type.name} x{self.quantity_ordered}"
+
+    @property
+    def fulfillment_percentage(self):
+        """Calculate fulfillment percentage for this item"""
+        if self.quantity_ordered == 0:
+            return 0
+        return (self.quantity_fulfilled / self.quantity_ordered) * 100
+
+    @property
+    def is_fulfilled(self):
+        """Check if this item is fully fulfilled"""
+        return self.quantity_fulfilled >= self.quantity_ordered
+
+    @property
+    def remaining_quantity(self):
+        """Get remaining quantity to fulfill"""
+        return max(0, self.quantity_ordered - self.quantity_fulfilled)
 
     class Meta:
         db_table = 'purchase_order_items'

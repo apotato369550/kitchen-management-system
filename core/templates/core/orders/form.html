@@ -1,0 +1,194 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}Create Purchase Order - Kitchen Management System{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900">Create Purchase Order</h1>
+</div>
+
+<div class="max-w-4xl">
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                <div class="rounded-md bg-red-50 p-4">
+                    <p class="text-sm text-red-700">{{ form.non_field_errors }}</p>
+                </div>
+                {% endif %}
+
+                <!-- Customer Selection -->
+                <div>
+                    <label for="{{ form.customer.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.customer.label }}
+                    </label>
+                    {{ form.customer }}
+                    {% if form.customer.errors %}
+                    <p class="mt-1 text-sm text-red-600">
+                        {% for error in form.customer.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </p>
+                    {% endif %}
+                    {% if form.customer.help_text %}
+                    <p class="mt-1 text-sm text-gray-500">{{ form.customer.help_text|safe }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Status Selection -->
+                {% if form.status %}
+                <div>
+                    <label for="{{ form.status.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.status.label }}
+                    </label>
+                    {{ form.status }}
+                    {% if form.status.errors %}
+                    <p class="mt-1 text-sm text-red-600">
+                        {% for error in form.status.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </p>
+                    {% endif %}
+                    {% if form.status.help_text %}
+                    <p class="mt-1 text-sm text-gray-500">{{ form.status.help_text|safe }}</p>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <!-- Line Items -->
+                <div class="border-t border-gray-200 pt-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Order Items</h3>
+
+                    {{ formset.management_form }}
+
+                    {% if formset.non_form_errors %}
+                    <div class="rounded-md bg-red-50 p-4 mb-4">
+                        <p class="text-sm text-red-700">{{ formset.non_form_errors }}</p>
+                    </div>
+                    {% endif %}
+
+                    <div id="formset-container" class="space-y-4">
+                        {% for item_form in formset %}
+                        <div class="formset-form border border-gray-200 rounded-lg p-4 bg-gray-50">
+                            {{ item_form.id }}
+                            {{ item_form.DELETE }}
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="{{ item_form.product_type.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                        Product Type
+                                    </label>
+                                    {{ item_form.product_type }}
+                                    {% if item_form.product_type.errors %}
+                                    <p class="mt-1 text-sm text-red-600">
+                                        {% for error in item_form.product_type.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </p>
+                                    {% endif %}
+                                </div>
+
+                                <div>
+                                    <label for="{{ item_form.quantity_ordered.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                                        Quantity
+                                    </label>
+                                    {{ item_form.quantity_ordered }}
+                                    {% if item_form.quantity_ordered.errors %}
+                                    <p class="mt-1 text-sm text-red-600">
+                                        {% for error in item_form.quantity_ordered.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </p>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            {% if not forloop.first %}
+                            <div class="mt-3">
+                                <button type="button" class="remove-form text-sm text-red-600 hover:text-red-900">
+                                    Remove Item
+                                </button>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="button" id="add-form" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            + Add Another Item
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex gap-3 border-t border-gray-200 pt-6">
+                    <button type="submit" class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
+                        Create Order
+                    </button>
+                    <a href="{% url 'order_list' %}" class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Formset management
+    document.addEventListener('DOMContentLoaded', function() {
+        const container = document.getElementById('formset-container');
+        const addButton = document.getElementById('add-form');
+        const totalForms = document.getElementById('id_items-TOTAL_FORMS');
+
+        let formNum = parseInt(totalForms.value);
+
+        addButton.addEventListener('click', function() {
+            const emptyForm = document.querySelector('.formset-form').cloneNode(true);
+
+            // Update form number
+            const formRegex = RegExp(`items-(\\d+)-`, 'g');
+            emptyForm.innerHTML = emptyForm.innerHTML.replace(formRegex, `items-${formNum}-`);
+
+            // Clear values
+            emptyForm.querySelectorAll('input, select, textarea').forEach(function(input) {
+                if (input.type !== 'hidden') {
+                    input.value = '';
+                }
+            });
+
+            // Add remove button functionality
+            const removeBtn = emptyForm.querySelector('.remove-form');
+            if (removeBtn) {
+                removeBtn.addEventListener('click', function() {
+                    emptyForm.remove();
+                    formNum--;
+                    totalForms.value = formNum;
+                });
+            }
+
+            container.appendChild(emptyForm);
+            formNum++;
+            totalForms.value = formNum;
+        });
+
+        // Add event listeners to existing remove buttons
+        document.querySelectorAll('.remove-form').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                const form = btn.closest('.formset-form');
+                const deleteInput = form.querySelector('input[name$="-DELETE"]');
+                if (deleteInput) {
+                    deleteInput.checked = true;
+                    form.style.display = 'none';
+                } else {
+                    form.remove();
+                    formNum--;
+                    totalForms.value = formNum;
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

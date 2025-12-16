@@ -1,0 +1,119 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}Add Update - {{ order.po_number }} - Kitchen Management System{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <a href="{% url 'order_detail' order.pk %}" class="text-sm text-blue-600 hover:text-blue-900 mb-4 inline-block">
+        &larr; Back to {{ order.po_number }}
+    </a>
+</div>
+
+<div class="mb-6">
+    <h1 class="text-3xl font-bold text-gray-900">Add Update to {{ order.po_number }}</h1>
+    <p class="mt-2 text-sm text-gray-600">
+        Customer: <span class="font-medium text-gray-900">{{ order.customer.name }}</span>
+    </p>
+</div>
+
+<div class="max-w-2xl">
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                <div class="rounded-md bg-red-50 p-4">
+                    <p class="text-sm text-red-700">{{ form.non_field_errors }}</p>
+                </div>
+                {% endif %}
+
+                <!-- Note Field -->
+                <div>
+                    <label for="{{ form.note.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.note.label }}
+                    </label>
+                    {{ form.note }}
+                    {% if form.note.errors %}
+                    <p class="mt-1 text-sm text-red-600">
+                        {% for error in form.note.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </p>
+                    {% endif %}
+                    {% if form.note.help_text %}
+                    <p class="mt-1 text-sm text-gray-500">{{ form.note.help_text|safe }}</p>
+                    {% else %}
+                    <p class="mt-1 text-sm text-gray-500">Describe the update, delivery details, or any relevant information.</p>
+                    {% endif %}
+                </div>
+
+                <!-- Quantity Delivered Field -->
+                <div>
+                    <label for="{{ form.quantity_delivered.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.quantity_delivered.label }}
+                    </label>
+                    {{ form.quantity_delivered }}
+                    {% if form.quantity_delivered.errors %}
+                    <p class="mt-1 text-sm text-red-600">
+                        {% for error in form.quantity_delivered.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </p>
+                    {% endif %}
+                    {% if form.quantity_delivered.help_text %}
+                    <p class="mt-1 text-sm text-gray-500">{{ form.quantity_delivered.help_text|safe }}</p>
+                    {% else %}
+                    <p class="mt-1 text-sm text-gray-500">Optional: Enter quantity if this update includes a delivery.</p>
+                    {% endif %}
+                </div>
+
+                <!-- Current Order Status Info -->
+                <div class="bg-blue-50 border border-blue-200 rounded-md p-4">
+                    <h4 class="text-sm font-medium text-blue-900 mb-2">Current Order Status</h4>
+                    <div class="text-sm text-blue-700 space-y-1">
+                        <p><span class="font-medium">Status:</span> {{ order.get_status_display }}</p>
+                        <p><span class="font-medium">Progress:</span> {{ order.overall_progress|floatformat:0 }}%</p>
+                        <p><span class="font-medium">Items:</span> {{ order.items_count }}</p>
+                    </div>
+                </div>
+
+                <div class="flex gap-3">
+                    <button type="submit" class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
+                        Add Update
+                    </button>
+                    <a href="{% url 'order_detail' order.pk %}" class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Recent Updates Preview -->
+    {% if recent_updates %}
+    <div class="mt-8 bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Recent Updates</h3>
+        </div>
+        <div class="divide-y divide-gray-200 max-h-96 overflow-y-auto">
+            {% for update in recent_updates %}
+            <div class="px-6 py-3">
+                <div class="flex justify-between items-start mb-1">
+                    <p class="text-xs font-medium text-gray-500">
+                        {{ update.created_at|date:"M d, Y h:i A" }}
+                    </p>
+                    {% if update.quantity_delivered %}
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                        Qty: {{ update.quantity_delivered }}
+                    </span>
+                    {% endif %}
+                </div>
+                <p class="text-sm text-gray-700">{{ update.note|truncatewords:20 }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

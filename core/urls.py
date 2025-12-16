@@ -26,4 +26,19 @@ urlpatterns = [
     path('production/', views.production_history, name='production_history'),
     path('production/add/', views.production_create, name='production_create'),
     path('production/<uuid:pk>/delete/', views.production_delete, name='production_delete'),
+
+    # Customers
+    path('customers/', views.customer_list, name='customer_list'),
+    path('customers/add/', views.customer_create, name='customer_create'),
+    path('customers/<uuid:pk>/', views.customer_detail, name='customer_detail'),
+    path('customers/<uuid:pk>/edit/', views.customer_edit, name='customer_edit'),
+    path('customers/<uuid:pk>/delete/', views.customer_delete, name='customer_delete'),
+
+    # Purchase Orders
+    path('orders/', views.purchase_order_list, name='purchase_order_list'),
+    path('orders/create/', views.purchase_order_create, name='purchase_order_create'),
+    path('orders/<uuid:pk>/', views.purchase_order_detail, name='purchase_order_detail'),
+    path('orders/<uuid:pk>/update/', views.purchase_order_add_update, name='purchase_order_add_update'),
+    path('orders/<uuid:pk>/status/', views.purchase_order_change_status, name='purchase_order_change_status'),
+    path('orders/<uuid:pk>/delete/', views.purchase_order_delete, name='purchase_order_delete'),
 ]

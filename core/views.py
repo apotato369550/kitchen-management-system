@@ -5,8 +5,14 @@ from django.utils import timezone
 from django.db.models import Sum, Count
 from datetime import timedelta
 
-from .models import RawMaterial, DailyConsumption, ProductType, DailyProduction
-from .forms import RawMaterialForm, DailyConsumptionForm, ProductTypeForm, DailyProductionForm
+from .models import (
+    RawMaterial, DailyConsumption, ProductType, DailyProduction,
+    Customer, PurchaseOrder, PurchaseOrderItem, PurchaseOrderUpdate
+)
+from .forms import (
+    RawMaterialForm, DailyConsumptionForm, ProductTypeForm, DailyProductionForm,
+    CustomerForm, PurchaseOrderForm, PurchaseOrderItemFormSet, PurchaseOrderUpdateForm
+)
 
 
 @login_required
@@ -319,4 +325,239 @@ def production_delete(request, pk):
     return render(request, 'core/confirm_delete.html', {
         'object': production,
         'object_type': 'Production Entry'
+    })
+
+
+# ===== CUSTOMER VIEWS =====
+
+@login_required
+def customer_list(request):
+    """List all customers"""
+    customers = Customer.objects.all().order_by('name')
+    search = request.GET.get('search', '')
+
+    if search:
+        customers = customers.filter(name__icontains=search)
+
+    context = {
+        'customers': customers,
+        'search': search,
+    }
+    return render(request, 'core/customers/list.html', context)
+
+
+@login_required
+def customer_create(request):
+    """Create a new customer"""
+    if request.method == 'POST':
+        form = CustomerForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Customer created successfully.')
+            return redirect('customer_list')
+    else:
+        form = CustomerForm()
+
+    return render(request, 'core/customers/form.html', {
+        'form': form,
+        'title': 'Add Customer',
+        'button_text': 'Add Customer'
+    })
+
+
+@login_required
+def customer_detail(request, pk):
+    """View customer details and their orders"""
+    customer = get_object_or_404(Customer, pk=pk)
+    orders = customer.purchase_orders.all().order_by('-created_at')
+
+    context = {
+        'customer': customer,
+        'orders': orders,
+    }
+    return render(request, 'core/customers/detail.html', context)
+
+
+@login_required
+def customer_edit(request, pk):
+    """Edit an existing customer"""
+    customer = get_object_or_404(Customer, pk=pk)
+
+    if request.method == 'POST':
+        form = CustomerForm(request.POST, instance=customer)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Customer updated successfully.')
+            return redirect('customer_detail', pk=customer.pk)
+    else:
+        form = CustomerForm(instance=customer)
+
+    return render(request, 'core/customers/form.html', {
+        'form': form,
+        'title': 'Edit Customer',
+        'button_text': 'Save Changes',
+        'object': customer
+    })
+
+
+@login_required
+def customer_delete(request, pk):
+    """Delete a customer"""
+    customer = get_object_or_404(Customer, pk=pk)
+
+    if customer.purchase_orders.exists():
+        messages.error(request, 'Cannot delete customer with existing orders.')
+        return redirect('customer_detail', pk=customer.pk)
+
+    if request.method == 'POST':
+        name = customer.name
+        customer.delete()
+        messages.success(request, f'Customer "{name}" deleted successfully.')
+        return redirect('customer_list')
+
+    return render(request, 'core/confirm_delete.html', {
+        'object': customer,
+        'object_type': 'Customer'
+    })
+
+
+# ===== PURCHASE ORDER VIEWS =====
+
+@login_required
+def purchase_order_list(request):
+    """List all purchase orders"""
+    orders = PurchaseOrder.objects.select_related('customer').all()
+
+    # Filter by status
+    status = request.GET.get('status', '')
+    if status:
+        orders = orders.filter(status=status)
+
+    # Filter by customer
+    customer_id = request.GET.get('customer', '')
+    if customer_id:
+        orders = orders.filter(customer_id=customer_id)
+
+    # Filter by date range
+    date_from = request.GET.get('date_from', '')
+    date_to = request.GET.get('date_to', '')
+    if date_from:
+        orders = orders.filter(created_at__date__gte=date_from)
+    if date_to:
+        orders = orders.filter(created_at__date__lte=date_to)
+
+    customers = Customer.objects.all().order_by('name')
+
+    context = {
+        'orders': orders,
+        'status': status,
+        'customer_id': customer_id,
+        'date_from': date_from,
+        'date_to': date_to,
+        'customers': customers,
+        'status_choices': PurchaseOrder.STATUS_CHOICES,
+    }
+    return render(request, 'core/orders/list.html', context)
+
+
+@login_required
+def purchase_order_create(request):
+    """Create a new purchase order"""
+    if request.method == 'POST':
+        form = PurchaseOrderForm(request.POST)
+        formset = PurchaseOrderItemFormSet(request.POST)
+
+        if form.is_valid() and formset.is_valid():
+            order = form.save()
+            formset.instance = order
+            formset.save()
+            messages.success(request, 'Purchase order created successfully.')
+            return redirect('purchase_order_detail', pk=order.pk)
+    else:
+        form = PurchaseOrderForm()
+        formset = PurchaseOrderItemFormSet()
+
+    return render(request, 'core/orders/form.html', {
+        'form': form,
+        'formset': formset,
+        'title': 'Create Purchase Order',
+        'button_text': 'Create Order'
+    })
+
+
+@login_required
+def purchase_order_detail(request, pk):
+    """View purchase order details"""
+    order = get_object_or_404(PurchaseOrder.objects.select_related('customer').prefetch_related('items', 'updates'), pk=pk)
+
+    context = {
+        'order': order,
+        'items': order.items.all(),
+        'updates': order.updates.all().order_by('-created_at'),
+    }
+    return render(request, 'core/orders/detail.html', context)
+
+
+@login_required
+def purchase_order_add_update(request, pk):
+    """Add an update/delivery to a purchase order"""
+    order = get_object_or_404(PurchaseOrder, pk=pk)
+
+    if request.method == 'POST':
+        form = PurchaseOrderUpdateForm(request.POST)
+        if form.is_valid():
+            update = form.save(commit=False)
+            update.purchase_order = order
+            update.save()
+
+            # Auto-update order status
+            order.update_status_based_on_fulfillment()
+
+            messages.success(request, 'Update added successfully.')
+            return redirect('purchase_order_detail', pk=order.pk)
+    else:
+        form = PurchaseOrderUpdateForm()
+
+    context = {
+        'form': form,
+        'order': order,
+        'title': 'Add Delivery Update',
+        'button_text': 'Add Update'
+    }
+    return render(request, 'core/orders/update_form.html', context)
+
+
+@login_required
+def purchase_order_change_status(request, pk):
+    """Change purchase order status"""
+    order = get_object_or_404(PurchaseOrder, pk=pk)
+
+    if request.method == 'POST':
+        new_status = request.POST.get('status')
+        if new_status in dict(PurchaseOrder.STATUS_CHOICES):
+            order.status = new_status
+            order.save()
+            messages.success(request, f'Order status changed to {order.get_status_display()}.')
+            return redirect('purchase_order_detail', pk=order.pk)
+
+    return render(request, 'core/orders/change_status.html', {
+        'order': order,
+        'status_choices': PurchaseOrder.STATUS_CHOICES,
+    })
+
+
+@login_required
+def purchase_order_delete(request, pk):
+    """Delete a purchase order"""
+    order = get_object_or_404(PurchaseOrder, pk=pk)
+
+    if request.method == 'POST':
+        po_number = order.po_number
+        order.delete()
+        messages.success(request, f'Order {po_number} deleted successfully.')
+        return redirect('purchase_order_list')
+
+    return render(request, 'core/confirm_delete.html', {
+        'object': order,
+        'object_type': 'Purchase Order'
     })
