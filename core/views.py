@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
 from django.db.models import Sum, Count
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
 from datetime import timedelta
 
 from .models import (
@@ -561,3 +563,38 @@ def purchase_order_delete(request, pk):
         'object': order,
         'object_type': 'Purchase Order'
     })
+
+
+# ===== TUTORIAL VIEWS =====
+
+@login_required
+@require_POST
+def tutorial_complete(request):
+    """Mark tutorial as completed for the user"""
+    profile = request.user.profile
+    profile.tutorial_completed = True
+    profile.tutorial_completed_at = timezone.now()
+    profile.save()
+    return JsonResponse({'status': 'success', 'message': 'Tutorial marked as completed'})
+
+
+@login_required
+@require_POST
+def tutorial_dismiss(request):
+    """Mark tutorial as dismissed (user declined to take it)"""
+    profile = request.user.profile
+    profile.tutorial_dismissed = True
+    profile.save()
+    return JsonResponse({'status': 'success', 'message': 'Tutorial dismissed'})
+
+
+@login_required
+@require_POST
+def tutorial_reset(request):
+    """Reset tutorial status (allow user to restart)"""
+    profile = request.user.profile
+    profile.tutorial_completed = False
+    profile.tutorial_completed_at = None
+    profile.tutorial_dismissed = False
+    profile.save()
+    return JsonResponse({'status': 'success', 'message': 'Tutorial reset'})
