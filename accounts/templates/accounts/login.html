@@ -1,61 +1,154 @@
-{% extends 'accounts/base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Kitchen Management System</title>
+    <script>
+        tailwindConfig = {
+            darkMode: 'class'
+        }
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Explicit dark mode styles */
+        html.dark {
+            color-scheme: dark;
+        }
+        html.dark body {
+            background: linear-gradient(to bottom right, #111827, #0f172a) !important;
+            color: #f3f4f6;
+        }
+        html.dark div {
+            background-color: inherit;
+        }
+        html.dark div[class*="bg-white"] {
+            background-color: #1f2937 !important;
+        }
+        html.dark div[class*="bg-gradient-to-br from-blue-50"] {
+            background: linear-gradient(to bottom right, rgba(30, 58, 138, 0.2), rgba(7, 89, 133, 0.2)) !important;
+        }
+        html.dark h1, html.dark h2, html.dark h3 {
+            color: #f3f4f6 !important;
+        }
+        html.dark p, html.dark label {
+            color: #d1d5db !important;
+        }
+        html.dark button {
+            color: #f3f4f6;
+        }
+        html.dark input,
+        html.dark textarea,
+        html.dark select {
+            background-color: #374151 !important;
+            color: #f3f4f6 !important;
+            border-color: #4b5563 !important;
+        }
+        html.dark input::placeholder,
+        html.dark textarea::placeholder {
+            color: #9ca3af !important;
+        }
+        html.dark div[class*="border-gray-200"],
+        html.dark div[class*="border-blue-200"] {
+            border-color: #374151 !important;
+        }
+    </style>
+    <script>
+        // Global dark mode functions
+        function initDarkMode() {
+            const html = document.documentElement;
+            const stored = localStorage.getItem('theme');
 
-{% block title %}Login - Kitchen Management System{% endblock %}
+            if (stored === 'dark') {
+                html.classList.add('dark');
+            } else if (stored === 'light') {
+                html.classList.remove('dark');
+            } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                html.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                html.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            }
+        }
 
-{% block content %}
-<div class="min-h-[80vh] flex items-center justify-center">
-    <div class="max-w-md w-full space-y-8">
-        <div>
-            <h2 class="mt-6 text-center text-3xl font-bold text-gray-900">
-                Sign in to your account
-            </h2>
-            <p class="mt-2 text-center text-sm text-gray-600">
-                Kitchen Management System
-            </p>
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            html.classList.toggle('dark');
+
+            const isDark = html.classList.contains('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        }
+
+        // Initialize dark mode as soon as script loads
+        initDarkMode();
+    </script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-gray-900 dark:to-gray-800 min-h-screen flex items-center justify-center transition-colors duration-300">
+    <div class="absolute top-4 right-4">
+        <button onclick="toggleDarkMode()" class="p-2 rounded-md text-gray-700 dark:text-gray-100 hover:bg-white dark:hover:bg-gray-800 transition" title="Toggle dark mode">
+            <svg class="w-5 h-5 dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+            <svg class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1m-16 0H1m15.364 1.636l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+        </button>
+    </div>
+
+    <div class="max-w-md w-full mx-4">
+        <!-- Logo/Brand -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg mb-4">
+                <span class="text-3xl">🍳</span>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">KitchenHub</h1>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Management System</p>
         </div>
-        <div class="bg-white py-8 px-4 shadow-lg rounded-lg sm:px-10">
+
+        <!-- Login Form -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
+                Sign in
+            </h2>
+
             <form class="space-y-6" method="post">
                 {% csrf_token %}
 
                 <div>
-                    <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                    <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Username
                     </label>
-                    <div class="mt-1">
-                        {{ form.username }}
-                    </div>
+                    <input type="text" name="username" id="{{ form.username.id_for_label }}" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400" required>
                     {% if form.username.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.username.errors.0 }}</p>
+                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.username.errors.0 }}</p>
                     {% endif %}
                 </div>
 
                 <div>
-                    <label for="{{ form.password.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                    <label for="{{ form.password.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Password
                     </label>
-                    <div class="mt-1">
-                        {{ form.password }}
-                    </div>
+                    <input type="password" name="password" id="{{ form.password.id_for_label }}" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400" required>
                     {% if form.password.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.password.errors.0 }}</p>
+                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.password.errors.0 }}</p>
                     {% endif %}
                 </div>
 
                 {% if form.non_field_errors %}
-                <div class="rounded-md bg-red-50 p-4">
-                    <div class="text-sm text-red-700">
+                <div class="rounded-lg bg-red-50 dark:bg-red-900/20 p-4 border border-red-200 dark:border-red-800">
+                    <p class="text-sm text-red-800 dark:text-red-300">
                         {{ form.non_field_errors.0 }}
-                    </div>
+                    </p>
                 </div>
                 {% endif %}
 
-                <div>
-                    <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                        Sign in
-                    </button>
-                </div>
+                <button type="submit" class="w-full py-3 px-4 bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 text-white font-medium rounded-lg hover:from-blue-600 hover:to-blue-700 dark:hover:from-blue-700 dark:hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition">
+                    Sign in
+                </button>
             </form>
         </div>
+
+        <!-- Info -->
+        <p class="text-center text-sm text-gray-600 dark:text-gray-400 mt-6">
+            Contact an administrator if you need an account
+        </p>
     </div>
-</div>
-{% endblock %}
+</body>
+</html>

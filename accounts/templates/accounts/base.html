@@ -4,225 +4,291 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Kitchen Management System{% endblock %}</title>
+    <script>
+        tailwindConfig = {
+            darkMode: 'class'
+        }
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .form-input {
-            @apply mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 px-4 py-2 border;
+            @apply mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2 border;
         }
         .form-select {
-            @apply mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 px-4 py-2 border;
+            @apply mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2 border;
         }
         .form-checkbox {
-            @apply rounded border-gray-300 text-amber-600 shadow-sm focus:border-amber-500 focus:ring-amber-500;
+            @apply rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500;
         }
         .form-textarea {
-            @apply mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 px-4 py-2 border;
+            @apply mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2 border;
         }
-        .nav-group-title {
-            @apply text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-2;
+
+        /* Explicit dark mode styles */
+        html.dark {
+            color-scheme: dark;
         }
-        .nav-item {
-            @apply block px-4 py-2.5 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition;
+        html.dark body {
+            background-color: #111827 !important;
+            color: #f3f4f6;
         }
-        .nav-item.active {
-            @apply bg-amber-50 text-amber-700 border-l-4 border-amber-600;
+        html.dark nav {
+            background-color: #1f2937 !important;
+            border-color: #374151 !important;
+        }
+        /* Cards */
+        html.dark div[class*="bg-white"] {
+            background-color: #1f2937 !important;
+        }
+        html.dark div[class*="border-gray-200"] {
+            border-color: #374151 !important;
+        }
+        /* Text colors */
+        html.dark h1, html.dark h2, html.dark h3, html.dark h4, html.dark h5, html.dark h6 {
+            color: #f3f4f6 !important;
+        }
+        html.dark p, html.dark span, html.dark div {
+            color: #d1d5db !important;
+        }
+        html.dark button,
+        html.dark a {
+            color: #f3f4f6;
+        }
+        html.dark button:hover,
+        html.dark a:hover {
+            opacity: 0.8;
+        }
+        html.dark input,
+        html.dark textarea,
+        html.dark select {
+            background-color: #374151 !important;
+            color: #f3f4f6 !important;
+            border-color: #4b5563 !important;
+        }
+        html.dark input::placeholder,
+        html.dark textarea::placeholder {
+            color: #9ca3af !important;
+        }
+        /* Dropdown menus */
+        html.dark div[id*="-menu"] {
+            background-color: #1f2937 !important;
+            border-color: #374151 !important;
+        }
+        html.dark div[id*="-menu"] a {
+            color: #f3f4f6 !important;
+        }
+        html.dark div[id*="-menu"] a:hover {
+            background-color: #374151 !important;
         }
     </style>
     <script>
-        function toggleMenu(id) {
-            const menu = document.getElementById(id);
-            menu.classList.toggle('hidden');
+        // Global dark mode functions
+        function initDarkMode() {
+            const html = document.documentElement;
+            const stored = localStorage.getItem('theme');
+
+            if (stored === 'dark') {
+                html.classList.add('dark');
+            } else if (stored === 'light') {
+                html.classList.remove('dark');
+            } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                html.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                html.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            }
         }
+
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            html.classList.toggle('dark');
+
+            const isDark = html.classList.contains('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        }
+
+        function toggleDropdown(id) {
+            const menu = document.getElementById(id);
+            if (menu) {
+                menu.classList.toggle('hidden');
+            }
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.relative')) {
+                document.querySelectorAll('[id$="-menu"]').forEach(menu => {
+                    if (!menu.id.includes('mobile')) {
+                        menu.classList.add('hidden');
+                    }
+                });
+            }
+        });
+
+        // Initialize dark mode as soon as script loads
+        initDarkMode();
     </script>
 </head>
-<body class="bg-gray-50 min-h-screen">
+<body class="bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors duration-300">
     {% if user.is_authenticated %}
-    <!-- Modern Sidebar Navigation -->
-    <div class="flex h-screen bg-gray-50">
-        <!-- Sidebar -->
-        <div class="w-64 bg-white shadow-sm border-r border-gray-200 flex flex-col">
-            <!-- Logo/Brand -->
-            <div class="p-6 border-b border-gray-200">
-                <div class="flex items-center gap-2">
-                    <div class="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">
-                        🍳
-                    </div>
-                    <div>
-                        <h1 class="text-lg font-bold text-gray-900">KitchenHub</h1>
-                        <p class="text-xs text-gray-500">Management System</p>
-                    </div>
-                </div>
-            </div>
+    <div class="flex flex-col h-screen">
+        <!-- Top Navigation Bar -->
+        <nav class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <!-- Left: Logo -->
+                    <a href="{% url 'dashboard' %}" class="flex items-center gap-3 hover:opacity-80 transition">
+                        <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center text-white text-lg shadow-md">
+                            🍳
+                        </div>
+                        <span class="font-bold text-gray-900 dark:text-white text-lg hidden sm:inline">KitchenHub</span>
+                    </a>
 
-            <!-- Navigation -->
-            <nav class="flex-1 overflow-y-auto py-4">
-                <!-- Main -->
-                <div>
-                    <div class="nav-group-title">Main</div>
-                    <a href="{% url 'dashboard' %}" class="nav-item">
-                        <span class="flex items-center gap-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-3m0 0l7-4 7 4M5 9v10a1 1 0 001 1h12a1 1 0 001-1V9m-9 16l-7-4m0 0V5m7 4l7-4"></path></svg>
+                    <!-- Center: Navigation Dropdowns -->
+                    <div class="hidden md:flex items-center gap-1">
+                        <!-- Dashboard -->
+                        <a href="{% url 'dashboard' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
                             Dashboard
-                        </span>
-                    </a>
-                </div>
+                        </a>
 
-                <!-- Operations -->
-                <div class="mt-8">
-                    <div class="nav-group-title">Operations</div>
-
-                    <!-- Raw Materials Section -->
-                    <div>
-                        <button onclick="toggleMenu('materials-menu')" class="w-full nav-item flex items-center justify-between hover:bg-amber-50 hover:text-amber-700">
-                            <span class="flex items-center gap-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                        <!-- Raw Materials Dropdown -->
+                        <div class="relative group">
+                            <button onclick="toggleDropdown('materials-menu')" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 transition flex items-center gap-1">
                                 Raw Materials
-                            </span>
-                            <svg class="w-4 h-4 transition" id="materials-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
-                        </button>
-                        <div id="materials-menu" class="bg-gray-50 space-y-1 pl-4">
-                            <a href="{% url 'raw_material_list' %}" class="nav-item text-xs">
-                                📦 Library
-                            </a>
-                            <a href="{% url 'consumption_history' %}" class="nav-item text-xs">
-                                📊 Consumption
-                            </a>
-                            <a href="{% url 'consumption_create' %}" class="nav-item text-xs bg-green-50 text-green-700 font-medium">
-                                ➕ Record Now
-                            </a>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                            </button>
+                            <div id="materials-menu" class="hidden absolute left-0 mt-0 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg border border-gray-200 dark:border-gray-600 z-50">
+                                <a href="{% url 'raw_material_list' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-600 first:rounded-t-md transition">
+                                    📦 Library
+                                </a>
+                                <a href="{% url 'consumption_history' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-600 transition">
+                                    📊 Consumption History
+                                </a>
+                                <a href="{% url 'consumption_create' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-600 last:rounded-b-md transition">
+                                    ➕ Record Consumption
+                                </a>
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- Production Section -->
-                    <div class="mt-2">
-                        <button onclick="toggleMenu('production-menu')" class="w-full nav-item flex items-center justify-between hover:bg-amber-50 hover:text-amber-700">
-                            <span class="flex items-center gap-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                        <!-- Production Dropdown -->
+                        <div class="relative group">
+                            <button onclick="toggleDropdown('production-menu')" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 transition flex items-center gap-1">
                                 Production
-                            </span>
-                            <svg class="w-4 h-4 transition" id="production-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
-                        </button>
-                        <div id="production-menu" class="bg-gray-50 space-y-1 pl-4">
-                            <a href="{% url 'product_type_list' %}" class="nav-item text-xs">
-                                📋 Product Types
-                            </a>
-                            <a href="{% url 'production_history' %}" class="nav-item text-xs">
-                                📈 History
-                            </a>
-                            <a href="{% url 'production_create' %}" class="nav-item text-xs bg-green-50 text-green-700 font-medium">
-                                ➕ Record Now
-                            </a>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                            </button>
+                            <div id="production-menu" class="hidden absolute left-0 mt-0 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg border border-gray-200 dark:border-gray-600 z-50">
+                                <a href="{% url 'product_type_list' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-600 first:rounded-t-md transition">
+                                    📋 Product Types
+                                </a>
+                                <a href="{% url 'production_history' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-600 transition">
+                                    📈 History
+                                </a>
+                                <a href="{% url 'production_create' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-600 last:rounded-b-md transition">
+                                    ➕ Record Production
+                                </a>
+                            </div>
                         </div>
-                    </div>
-                </div>
 
-                <!-- Sales -->
-                <div class="mt-8">
-                    <div class="nav-group-title">Sales</div>
-
-                    <!-- Customers Section -->
-                    <a href="{% url 'customer_list' %}" class="nav-item">
-                        <span class="flex items-center gap-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-2a6 6 0 0112 0v2zm0 0h6v-2a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                            Customers
-                        </span>
-                    </a>
-
-                    <!-- Purchase Orders Section -->
-                    <div class="mt-2">
-                        <button onclick="toggleMenu('orders-menu')" class="w-full nav-item flex items-center justify-between hover:bg-amber-50 hover:text-amber-700">
-                            <span class="flex items-center gap-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                Orders
-                            </span>
-                            <svg class="w-4 h-4 transition" id="orders-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
-                        </button>
-                        <div id="orders-menu" class="bg-gray-50 space-y-1 pl-4">
-                            <a href="{% url 'purchase_order_list' %}" class="nav-item text-xs">
-                                📋 All Orders
-                            </a>
-                            <a href="{% url 'purchase_order_create' %}" class="nav-item text-xs bg-green-50 text-green-700 font-medium">
-                                ➕ New Order
-                            </a>
+                        <!-- Sales Dropdown -->
+                        <div class="relative group">
+                            <button onclick="toggleDropdown('sales-menu')" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 transition flex items-center gap-1">
+                                Sales
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                            </button>
+                            <div id="sales-menu" class="hidden absolute left-0 mt-0 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg border border-gray-200 dark:border-gray-600 z-50">
+                                <a href="{% url 'customer_list' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-600 first:rounded-t-md transition">
+                                    👥 Customers
+                                </a>
+                                <a href="{% url 'purchase_order_list' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-600 transition">
+                                    📋 Orders
+                                </a>
+                                <a href="{% url 'purchase_order_create' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-600 last:rounded-b-md transition">
+                                    ➕ New Order
+                                </a>
+                            </div>
                         </div>
-                    </div>
-                </div>
 
-                <!-- Admin -->
-                {% if user.groups.all.0.name == 'Admin' %}
-                <div class="mt-8">
-                    <div class="nav-group-title">Admin</div>
-                    <a href="{% url 'user_list' %}" class="nav-item">
-                        <span class="flex items-center gap-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-2a6 6 0 0112 0v2zm0 0h6v-2a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                            User Management
-                        </span>
-                    </a>
-                </div>
-                {% endif %}
-            </nav>
-
-            <!-- User Profile (Bottom) -->
-            <div class="p-4 border-t border-gray-200 bg-gradient-to-r from-amber-50 to-orange-50">
-                <div class="flex items-center justify-between mb-4">
-                    <div>
-                        <p class="text-sm font-semibold text-gray-900">
-                            {{ user.first_name|default:user.username }}
-                        </p>
-                        {% if user.groups.all.0 %}
-                        <p class="text-xs text-amber-700 font-medium">{{ user.groups.all.0.name }}</p>
+                        <!-- Admin Dropdown (if admin) -->
+                        {% if user.groups.all.0.name == 'Admin' %}
+                        <div class="relative group">
+                            <button onclick="toggleDropdown('admin-menu')" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 transition flex items-center gap-1">
+                                Admin
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                            </button>
+                            <div id="admin-menu" class="hidden absolute left-0 mt-0 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg border border-gray-200 dark:border-gray-600 z-50">
+                                <a href="{% url 'user_list' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-md transition">
+                                    👥 User Management
+                                </a>
+                            </div>
+                        </div>
                         {% endif %}
                     </div>
-                    <div class="w-10 h-10 bg-amber-200 rounded-full flex items-center justify-center text-amber-700 font-bold">
-                        {{ user.first_name|default:user.username|first|upper }}
+
+                    <!-- Right: Dark Mode + Profile Dropdown -->
+                    <div class="flex items-center gap-4">
+                        <!-- Dark Mode Toggle -->
+                        <button onclick="toggleDarkMode()" class="p-2 rounded-md text-gray-700 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 transition" title="Toggle dark mode">
+                            <svg class="w-5 h-5 dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                            <svg class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1m-16 0H1m15.364 1.636l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                        </button>
+
+                        <!-- Profile Dropdown -->
+                        <div class="relative">
+                            <button onclick="toggleDropdown('profile-menu')" class="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                                <div class="w-8 h-8 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                                    {{ user.first_name|default:user.username|first|upper }}
+                                </div>
+                                <svg class="w-4 h-4 text-gray-700 dark:text-gray-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                            </button>
+                            <div id="profile-menu" class="hidden absolute right-0 mt-0 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg border border-gray-200 dark:border-gray-600 z-50">
+                                <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-600">
+                                    <p class="text-sm font-medium text-gray-900 dark:text-white">{{ user.first_name|default:user.username }}</p>
+                                    {% if user.groups.all.0 %}
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ user.groups.all.0.name }}</p>
+                                    {% endif %}
+                                </div>
+                                <a href="{% url 'profile' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-600 transition">
+                                    👤 Profile
+                                </a>
+                                <a href="{% url 'logout' %}" class="block px-4 py-2 text-sm text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-b-md transition">
+                                    🚪 Logout
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="space-y-2">
-                    <a href="{% url 'profile' %}" class="block w-full text-center px-3 py-2 text-sm font-medium text-gray-700 bg-white rounded-lg hover:bg-gray-100 border border-gray-200 transition">
-                        👤 Profile
-                    </a>
-                    <a href="{% url 'logout' %}" class="block w-full text-center px-3 py-2 text-sm font-medium text-red-700 bg-red-50 rounded-lg hover:bg-red-100 border border-red-200 transition">
-                        🚪 Logout
-                    </a>
+            </div>
+        </nav>
+
+        <!-- Messages -->
+        {% if messages %}
+        <div class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-4">
+            {% for message in messages %}
+            <div class="rounded-lg p-4 mb-4 {% if message.tags == 'success' %}bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-300 border border-green-200 dark:border-green-800{% elif message.tags == 'error' %}bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800{% else %}bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800{% endif %}">
+                <div class="flex items-center gap-2">
+                    {% if message.tags == 'success' %}
+                    <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                    {% elif message.tags == 'error' %}
+                    <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
+                    {% else %}
+                    <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+                    {% endif %}
+                    {{ message }}
                 </div>
             </div>
+            {% endfor %}
         </div>
+        {% endif %}
 
         <!-- Main Content -->
-        <div class="flex-1 flex flex-col overflow-hidden">
-            <!-- Messages -->
-            {% if messages %}
-            <div class="px-8 pt-4">
-                {% for message in messages %}
-                <div class="rounded-lg p-4 mb-4 {% if message.tags == 'success' %}bg-green-50 text-green-800 border border-green-200{% elif message.tags == 'error' %}bg-red-50 text-red-800 border border-red-200{% else %}bg-blue-50 text-blue-800 border border-blue-200{% endif %}">
-                    <div class="flex items-center gap-2">
-                        {% if message.tags == 'success' %}
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-                        {% elif message.tags == 'error' %}
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
-                        {% else %}
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
-                        {% endif %}
-                        {{ message }}
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            {% endif %}
-
-            <!-- Page Content -->
-            <main class="flex-1 overflow-y-auto px-8 py-8">
+        <main class="flex-1 overflow-y-auto">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {% block content %}
                 {% endblock %}
-            </main>
-        </div>
+            </div>
+        </main>
     </div>
-    {% else %}
-    <!-- Non-authenticated content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {% block content %}
-        {% endblock %}
-    </main>
     {% endif %}
 </body>
 </html>

@@ -2,99 +2,27 @@
 
 {% block title %}Dashboard - Kitchen Management System{% endblock %}
 
-{% block content %}
-<div class="mb-8">
-    <h1 class="text-4xl font-bold text-gray-900">Dashboard</h1>
-    <p class="mt-2 text-base text-gray-600">Track your kitchen operations at a glance</p>
+{% block content %}<div class="mb-8">
+    <h1 class="text-4xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
+    <p class="mt-2 text-base text-gray-600 dark:text-gray-400">Quick access to your kitchen operations</p>
 </div>
 
-<!-- Today's Summary -->
-<div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-    <!-- Today's Consumption -->
-    <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-200 rounded-xl shadow-sm overflow-hidden hover:shadow-md transition">
-        <div class="p-6">
-            <div class="flex justify-between items-start">
-                <div>
-                    <p class="text-sm text-emerald-700 font-medium">Today's Consumption</p>
-                    <p class="text-4xl font-bold text-emerald-900 mt-2">{{ today_consumption_count }}</p>
-                    <p class="text-xs text-emerald-600 mt-2">Entries recorded</p>
-                </div>
-                <div class="bg-emerald-200 rounded-lg p-3 text-2xl">📦</div>
-            </div>
-        </div>
-        <a href="{% url 'consumption_create' %}" class="block px-6 py-3 bg-emerald-600 text-white hover:bg-emerald-700 font-medium text-center text-sm transition">
-            Record Now
-        </a>
-    </div>
-
-    <!-- Today's Production -->
-    <div class="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-xl shadow-sm overflow-hidden hover:shadow-md transition">
-        <div class="p-6">
-            <div class="flex justify-between items-start">
-                <div>
-                    <p class="text-sm text-blue-700 font-medium">Today's Production</p>
-                    <p class="text-4xl font-bold text-blue-900 mt-2">{{ today_production_count }}</p>
-                    <p class="text-xs text-blue-600 mt-2">Items produced</p>
-                </div>
-                <div class="bg-blue-200 rounded-lg p-3 text-2xl">📋</div>
-            </div>
-        </div>
-        <a href="{% url 'production_create' %}" class="block px-6 py-3 bg-blue-600 text-white hover:bg-blue-700 font-medium text-center text-sm transition">
-            Record Now
-        </a>
-    </div>
-
-    <!-- Last 7 Days Consumption -->
-    <div class="bg-gradient-to-br from-orange-50 to-orange-100 border border-orange-200 rounded-xl shadow-sm overflow-hidden hover:shadow-md transition">
-        <div class="p-6">
-            <div class="flex justify-between items-start">
-                <div>
-                    <p class="text-sm text-orange-700 font-medium">Last 7 Days</p>
-                    <p class="text-4xl font-bold text-orange-900 mt-2">{{ recent_consumptions }}</p>
-                    <p class="text-xs text-orange-600 mt-2">Consumption entries</p>
-                </div>
-                <div class="bg-orange-200 rounded-lg p-3 text-2xl">📊</div>
-            </div>
-        </div>
-        <a href="{% url 'consumption_history' %}" class="block px-6 py-3 bg-orange-600 text-white hover:bg-orange-700 font-medium text-center text-sm transition">
-            View History
-        </a>
-    </div>
-
-    <!-- Last 7 Days Production -->
-    <div class="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-xl shadow-sm overflow-hidden hover:shadow-md transition">
-        <div class="p-6">
-            <div class="flex justify-between items-start">
-                <div>
-                    <p class="text-sm text-purple-700 font-medium">Last 7 Days</p>
-                    <p class="text-4xl font-bold text-purple-900 mt-2">{{ recent_productions }}</p>
-                    <p class="text-xs text-purple-600 mt-2">Production entries</p>
-                </div>
-                <div class="bg-purple-200 rounded-lg p-3 text-2xl">📈</div>
-            </div>
-        </div>
-        <a href="{% url 'production_history' %}" class="block px-6 py-3 bg-purple-600 text-white hover:bg-purple-700 font-medium text-center text-sm transition">
-            View History
-        </a>
-    </div>
-</div>
-
-<!-- Main Features -->
+<!-- Quick Access -->
 <div class="mb-8">
-    <h2 class="text-2xl font-bold text-gray-900 mb-6">Quick Access</h2>
+    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Quick Access</h2>
     <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
         <!-- Raw Materials -->
-        <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden hover:shadow-lg hover:-translate-y-1 transition">
-            <div class="bg-gradient-to-r from-emerald-500 to-emerald-600 px-6 py-4 text-white">
+        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm overflow-hidden hover:shadow-lg hover:-translate-y-1 transition">
+            <div class="bg-gradient-to-r from-emerald-500 to-teal-600 px-6 py-4 text-white">
                 <h3 class="text-lg font-semibold">📦 Raw Materials</h3>
             </div>
             <div class="p-6">
-                <p class="text-gray-600 text-sm mb-4">Manage your inventory and track daily consumption of materials.</p>
+                <p class="text-gray-600 dark:text-gray-300 text-sm mb-4">Manage your inventory and track daily consumption of materials.</p>
                 <div class="flex gap-2">
-                    <a href="{% url 'raw_material_list' %}" class="flex-1 px-4 py-2 bg-emerald-50 text-emerald-700 rounded-lg hover:bg-emerald-100 font-medium text-sm transition text-center">
+                    <a href="{% url 'raw_material_list' %}" class="flex-1 px-4 py-2 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-900/30 font-medium text-sm transition text-center">
                         Library
                     </a>
-                    <a href="{% url 'consumption_create' %}" class="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 font-medium text-sm transition text-center">
+                    <a href="{% url 'consumption_create' %}" class="flex-1 px-4 py-2 bg-emerald-600 dark:bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 dark:hover:bg-emerald-700 font-medium text-sm transition text-center">
                         Record
                     </a>
                 </div>
@@ -102,17 +30,17 @@
         </div>
 
         <!-- Production -->
-        <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden hover:shadow-lg hover:-translate-y-1 transition">
+        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm overflow-hidden hover:shadow-lg hover:-translate-y-1 transition">
             <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4 text-white">
                 <h3 class="text-lg font-semibold">📋 Production</h3>
             </div>
             <div class="p-6">
-                <p class="text-gray-600 text-sm mb-4">Track daily production output and manage product types.</p>
+                <p class="text-gray-600 dark:text-gray-300 text-sm mb-4">Track daily production output and manage product types.</p>
                 <div class="flex gap-2">
-                    <a href="{% url 'product_type_list' %}" class="flex-1 px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 font-medium text-sm transition text-center">
+                    <a href="{% url 'product_type_list' %}" class="flex-1 px-4 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 font-medium text-sm transition text-center">
                         Products
                     </a>
-                    <a href="{% url 'production_create' %}" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-sm transition text-center">
+                    <a href="{% url 'production_create' %}" class="flex-1 px-4 py-2 bg-blue-600 dark:bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-700 font-medium text-sm transition text-center">
                         Record
                     </a>
                 </div>
@@ -120,17 +48,17 @@
         </div>
 
         <!-- Purchase Orders -->
-        <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden hover:shadow-lg hover:-translate-y-1 transition">
-            <div class="bg-gradient-to-r from-amber-500 to-amber-600 px-6 py-4 text-white">
+        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm overflow-hidden hover:shadow-lg hover:-translate-y-1 transition">
+            <div class="bg-gradient-to-r from-orange-500 to-amber-600 px-6 py-4 text-white">
                 <h3 class="text-lg font-semibold">📊 Orders</h3>
             </div>
             <div class="p-6">
-                <p class="text-gray-600 text-sm mb-4">Manage customers and track purchase orders with fulfillment progress.</p>
+                <p class="text-gray-600 dark:text-gray-300 text-sm mb-4">Manage customers and track purchase orders with fulfillment progress.</p>
                 <div class="flex gap-2">
-                    <a href="{% url 'purchase_order_list' %}" class="flex-1 px-4 py-2 bg-amber-50 text-amber-700 rounded-lg hover:bg-amber-100 font-medium text-sm transition text-center">
+                    <a href="{% url 'purchase_order_list' %}" class="flex-1 px-4 py-2 bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-400 rounded-lg hover:bg-orange-100 dark:hover:bg-orange-900/30 font-medium text-sm transition text-center">
                         View All
                     </a>
-                    <a href="{% url 'purchase_order_create' %}" class="flex-1 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 font-medium text-sm transition text-center">
+                    <a href="{% url 'purchase_order_create' %}" class="flex-1 px-4 py-2 bg-orange-600 dark:bg-orange-600 text-white rounded-lg hover:bg-orange-700 dark:hover:bg-orange-700 font-medium text-sm transition text-center">
                         Create
                     </a>
                 </div>
@@ -140,12 +68,12 @@
 </div>
 
 <!-- Info Box -->
-<div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-6">
+<div class="bg-gradient-to-r from-blue-50 dark:from-blue-900/20 to-cyan-50 dark:to-blue-800/20 border border-blue-200 dark:border-blue-800 rounded-xl p-6">
     <div class="flex gap-4">
         <div class="text-3xl">✨</div>
         <div>
-            <h3 class="font-semibold text-gray-900 mb-2">Welcome to KitchenHub!</h3>
-            <p class="text-sm text-gray-700 leading-relaxed">
+            <h3 class="font-semibold text-gray-900 dark:text-white mb-2">Welcome to KitchenHub!</h3>
+            <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
                 Your kitchen management system is ready to use. Start by setting up your raw materials and product types, then begin tracking daily operations. The sidebar on the left provides easy access to all features organized by workflow.
             </p>
         </div>
