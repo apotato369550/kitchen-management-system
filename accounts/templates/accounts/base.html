@@ -4,17 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Kitchen Management System{% endblock %}</title>
+    <title>{% block title %}Cebu Best Value Trading - Kitchen Management System{% endblock %}</title>
     <script>
         tailwindConfig = {
             darkMode: 'class'
         }
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Driver.js Tutorial Library -->
-    <script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.js.iife.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.css">
-    <link rel="stylesheet" href="{% static 'core/css/tutorial-overrides.css' %}">
     <style>
         .form-input {
             @apply mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-2 border;
@@ -220,7 +216,10 @@
                         <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center text-white text-lg shadow-md">
                             🍳
                         </div>
-                        <span class="font-bold text-gray-900 dark:text-white text-lg hidden sm:inline">KitchenHub</span>
+                        <div class="hidden sm:block">
+                            <div class="font-bold text-gray-900 dark:text-white text-sm">Cebu Best Value</div>
+                            <div class="text-xs text-gray-600 dark:text-gray-400">Kitchen Mgmt</div>
+                        </div>
                     </a>
 
                     <!-- Center: Navigation Dropdowns -->
@@ -303,19 +302,8 @@
                         {% endif %}
                     </div>
 
-                    <!-- Right: Tutorial Button + Profile Dropdown -->
+                    <!-- Right: Profile Dropdown -->
                     <div class="flex items-center gap-4">
-                        <!-- Tutorial Button -->
-                        <button id="start-tutorial-btn"
-                                onclick="startTutorial()"
-                                class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 transition flex items-center gap-2"
-                                title="Start Interactive Tutorial">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            <span class="hidden md:inline">Tutorial</span>
-                        </button>
-
                         <!-- Profile Dropdown -->
                         <div class="relative">
                             <button onclick="toggleDropdown('profile-menu')" class="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition">
@@ -373,32 +361,5 @@
         </main>
     </div>
     {% endif %}
-
-    <!-- Tutorial Script -->
-    <script src="{% static 'core/js/tutorial.js' %}"></script>
-
-    <!-- Auto-launch tutorial for new users -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            {% if user.is_authenticated and not user.profile.tutorial_completed and not user.profile.tutorial_dismissed %}
-                // Delay slightly to let page render
-                setTimeout(function() {
-                    const confirmed = confirm('Would you like to take a quick tutorial to learn how to use KitchenHub? (About 7 minutes)');
-                    if (confirmed) {
-                        startTutorial();
-                    } else {
-                        // Mark as dismissed
-                        fetch('{% url "tutorial_dismiss" %}', {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRFToken': '{{ csrf_token }}',
-                                'Content-Type': 'application/json'
-                            }
-                        }).catch(error => console.error('Error dismissing tutorial:', error));
-                    }
-                }, 1000);
-            {% endif %}
-        });
-    </script>
 </body>
 </html>

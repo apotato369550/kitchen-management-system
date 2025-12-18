@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+import dj_database_url
 
 # Load environment variables from .env file
 load_dotenv()
@@ -25,12 +26,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-)4^ah&0mqmn45*r19$cjn*y8i8&_+t!s87(ie6r$@eq1r&+1_z'
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-)4^ah&0mqmn45*r19$cjn*y8i8&_+t!s87(ie6r$@eq1r&+1_z')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 
 # Application definition
@@ -49,6 +50,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -81,19 +83,30 @@ WSGI_APPLICATION = 'kitchen_management_system.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': os.getenv('SUPABASE_USER', 'postgres'),
-        'PASSWORD': os.getenv('SUPABASE_PROJECT_PASSWORD'),
-        'HOST': os.getenv('SUPABASE_HOST', 'localhost'),
-        'PORT': os.getenv('SUPABASE_PORT', '5432'),
-        'OPTIONS': {
-            'connect_timeout': 10,
-        },
+# Support both Render's DATABASE_URL and Supabase environment variables
+if os.getenv('DATABASE_URL'):
+    # Render provides DATABASE_URL
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=os.getenv('DATABASE_URL'),
+            conn_max_age=600,
+        )
     }
-}
+else:
+    # Development or Supabase connection pooler
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'postgres',
+            'USER': os.getenv('SUPABASE_USER', 'postgres'),
+            'PASSWORD': os.getenv('SUPABASE_PROJECT_PASSWORD'),
+            'HOST': os.getenv('SUPABASE_HOST', 'localhost'),
+            'PORT': os.getenv('SUPABASE_PORT', '5432'),
+            'OPTIONS': {
+                'connect_timeout': 10,
+            },
+        }
+    }
 
 
 # Password validation
@@ -133,7 +146,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# WhiteNoise configuration
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/6.0/ref/settings/#default-auto-field
@@ -159,11 +176,11 @@ AXES_LOCK_OUT_BY_COMBINATION_USER_AND_IP = True  # Lock by username + IP
 AXES_RESET_ON_SUCCESS = True  # Reset attempts after successful login
 
 # Security settings for production
-# Uncomment these when deploying to production (Vercel)
-# SESSION_COOKIE_SECURE = True  # HTTPS only
-# SESSION_COOKIE_HTTPONLY = True
-# CSRF_COOKIE_SECURE = True
-# SECURE_SSL_REDIRECT = True
-# SECURE_HSTS_SECONDS = 31536000
-# SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-# SECURE_HSTS_PRELOAD = True
+if not DEBUG:
+    SESSION_COOKIE_SECURE = True
+    SESSION_COOKIE_HTTPONLY = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True

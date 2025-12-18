@@ -6,63 +6,93 @@ let tutorialProgress = {};
  * Initialize and start the tutorial
  */
 function startTutorial() {
-    // Check if Driver.js is loaded
-    if (typeof window.driver === 'undefined') {
-        console.error('Driver.js not loaded');
+    // Check if Driver is loaded - try multiple ways it could be exposed
+    let DriverLib = null;
+
+    if (typeof window.driver !== 'undefined') {
+        DriverLib = window.driver;
+    } else if (typeof window.Driver !== 'undefined') {
+        DriverLib = window.Driver;
+    } else if (typeof driver !== 'undefined') {
+        DriverLib = driver;
+    } else {
+        console.error('Driver.js not loaded. Available globals:', Object.keys(window).filter(k => k.toLowerCase().includes('driver')));
         alert('Tutorial library failed to load. Please refresh the page.');
         return;
     }
 
     const currentPath = window.location.pathname;
 
-    // Initialize Driver.js with dark mode support
-    tutorialDriver = window.driver({
-        showProgress: true,
-        showButtons: ['next', 'previous', 'close'],
-        steps: getStepsForPage(currentPath),
-        onDestroyStarted: () => {
-            if (tutorialDriver && tutorialDriver.hasNextStep && tutorialDriver.hasNextStep()) {
-                const confirmed = confirm('Are you sure you want to exit the tutorial? Your progress will be saved.');
-                if (confirmed) {
-                    tutorialDriver.destroy();
-                } else {
-                    return false;
-                }
-            } else {
-                tutorialDriver.destroy();
-            }
-        },
-        onDestroyed: () => {
-            // Tutorial was closed without completing
-            if (tutorialDriver && tutorialDriver.getActiveIndex && tutorialDriver.getActiveIndex() < getTotalTutorialSteps() - 1) {
-                saveTutorialProgress(tutorialDriver.getActiveIndex());
-            }
-        },
-        popoverClass: 'tutorial-popover',
-        progressText: 'Step {{current}} of {{total}}',
-        nextBtnText: 'Next →',
-        prevBtnText: '← Back',
-        doneBtnText: 'Finish ✓'
-    });
+    try {
+        // Initialize Driver.js with dark mode support
+        // Try both ways the library could be used
+        if (DriverLib.Driver) {
+            tutorialDriver = new DriverLib.Driver({
+                allowClose: true,
+                overlayClickNext: false,
+                steps: getStepsForPage(currentPath)
+            });
+        } else {
+            tutorialDriver = new DriverLib({
+                allowClose: true,
+                overlayClickNext: false,
+                steps: getStepsForPage(currentPath)
+            });
+        }
 
-    tutorialDriver.drive();
+        if (tutorialDriver.drive) {
+            tutorialDriver.drive();
+        } else if (tutorialDriver.start) {
+            tutorialDriver.start();
+        }
+    } catch (e) {
+        console.error('Error starting tutorial:', e);
+        alert('Error starting tutorial: ' + e.message);
+    }
 }
 
 /**
  * Start tutorial from a specific step
  */
 function startTutorialFromStep(stepIndex) {
+    // Check if Driver is loaded
+    let DriverLib = null;
+
+    if (typeof window.driver !== 'undefined') {
+        DriverLib = window.driver;
+    } else if (typeof window.Driver !== 'undefined') {
+        DriverLib = window.Driver;
+    } else if (typeof driver !== 'undefined') {
+        DriverLib = driver;
+    } else {
+        return;
+    }
+
     const currentPath = window.location.pathname;
 
-    tutorialDriver = window.driver({
-        showProgress: true,
-        showButtons: ['next', 'previous', 'close'],
-        steps: getStepsForPage(currentPath),
-        popoverClass: 'tutorial-popover',
-        startIndex: stepIndex
-    });
+    try {
+        if (DriverLib.Driver) {
+            tutorialDriver = new DriverLib.Driver({
+                allowClose: true,
+                overlayClickNext: false,
+                steps: getStepsForPage(currentPath)
+            });
+        } else {
+            tutorialDriver = new DriverLib({
+                allowClose: true,
+                overlayClickNext: false,
+                steps: getStepsForPage(currentPath)
+            });
+        }
 
-    tutorialDriver.drive();
+        if (tutorialDriver.drive) {
+            tutorialDriver.drive();
+        } else if (tutorialDriver.start) {
+            tutorialDriver.start();
+        }
+    } catch (e) {
+        console.error('Error resuming tutorial:', e);
+    }
 }
 
 /**
@@ -78,314 +108,43 @@ function getStepsForPage(currentPath) {
 }
 
 /**
- * Get all 14 tutorial steps
+ * Get all tutorial steps - simplified for reliability
  */
 function getAllTutorialSteps() {
     return [
-        // Step 1: Welcome
         {
-            element: '.bg-gradient-to-r.from-blue-50',
+            element: 'h1',
             popover: {
                 title: '🎉 Welcome to KitchenHub!',
-                description: 'This interactive tutorial will guide you through setting up and using your kitchen management system. You\'ll create real sample data that you can delete later. Let\'s begin! (About 7 minutes)',
-                position: 'bottom'
+                description: 'This tutorial will guide you through using your kitchen management system. You\'ll create sample data to learn how everything works.'
             }
         },
-
-        // Step 2: Navigation Bar
         {
-            element: '.hidden.md\\:flex.items-center.gap-1',
+            element: 'nav',
             popover: {
-                title: '🧭 Navigation System',
-                description: 'Navigate using these organized dropdown menus. Each section groups related features for your workflow: Raw Materials, Production, Sales, and Admin (if you\'re an admin).',
-                position: 'bottom'
+                title: '🧭 Navigation',
+                description: 'Use the navigation menu to explore different sections: Raw Materials, Production, Sales, and Admin settings.'
             }
         },
-
-        // Step 3: Raw Materials Dropdown
         {
-            element: 'button[onclick="toggleDropdown(\'materials-menu\')"]',
+            element: '#start-tutorial-btn',
             popover: {
-                title: '📦 Raw Materials Section',
-                description: 'Let\'s start by creating your raw materials library. Click this dropdown to see the options.',
-                position: 'bottom',
-                onNextClick: () => {
-                    const btn = document.querySelector('button[onclick="toggleDropdown(\'materials-menu\')"]');
-                    if (btn) btn.click();
-                }
+                title: '📚 Tutorial Button',
+                description: 'You can always restart the tutorial using this button in the top navigation bar.'
             }
         },
-
-        // Step 4: Navigate to Raw Materials List
         {
-            element: '#materials-menu a[href*="raw_material"]',
+            element: 'main',
             popover: {
-                title: '📚 Raw Materials Library',
-                description: 'This is where you manage all your raw materials. Click "Library" to start.',
-                position: 'right',
-                onNextClick: () => {
-                    const link = document.querySelector('#materials-menu a[href*="raw_material_list"]');
-                    if (link) {
-                        saveTutorialProgress(3);
-                        window.location.href = link.getAttribute('href') + '?tutorial=active';
-                    }
-                }
+                title: '📋 Main Content Area',
+                description: 'This is where the main features and content of the system are displayed. Each section has its own set of features and workflows.'
             }
         },
-
-        // Step 5: Add Raw Material Button
         {
-            element: 'a[href*="raw_material_create"]',
+            element: 'h2',
             popover: {
-                title: '➕ Create Raw Material',
-                description: 'Click "Add Material" to create your first raw material. Example: Name="Chicken Breast", Category="Meat", Unit="grams"',
-                position: 'bottom',
-                onNextClick: () => {
-                    const link = document.querySelector('a[href*="raw_material_create"]');
-                    if (link) {
-                        saveTutorialProgress(4);
-                        window.location.href = link.getAttribute('href') + '?tutorial=active';
-                    }
-                }
-            }
-        },
-
-        // Step 6: Raw Material Form - User creates sample data
-        {
-            element: 'form',
-            popover: {
-                title: '📝 Add Sample Material',
-                description: 'Fill in this form to create a sample raw material. You\'ll need:\n• Name: e.g., "Chicken Breast"\n• Category: e.g., "Meat"\n• Unit: e.g., "grams"\n\nAfter submitting, click Next to continue.',
-                position: 'bottom'
-            }
-        },
-
-        // Step 7: Record Consumption
-        {
-            element: 'button[onclick="toggleDropdown(\'materials-menu\')"]',
-            popover: {
-                title: '📊 Record Consumption',
-                description: 'Now let\'s record daily consumption. Click the Raw Materials dropdown again to access the consumption section.',
-                position: 'bottom',
-                onNextClick: () => {
-                    const btn = document.querySelector('button[onclick="toggleDropdown(\'materials-menu\')"]');
-                    if (btn) btn.click();
-                }
-            }
-        },
-
-        // Step 8: Navigate to Consumption Create
-        {
-            element: '#materials-menu a[href*="consumption_create"]',
-            popover: {
-                title: '➕ Record Consumption',
-                description: 'Click here to record today\'s consumption of the material you just created.',
-                position: 'right',
-                onNextClick: () => {
-                    const link = document.querySelector('#materials-menu a[href*="consumption_create"]');
-                    if (link) {
-                        saveTutorialProgress(7);
-                        window.location.href = link.getAttribute('href') + '?tutorial=active';
-                    }
-                }
-            }
-        },
-
-        // Step 9: Consumption Form - User enters data
-        {
-            element: 'form',
-            popover: {
-                title: '📝 Track Material Usage',
-                description: 'Fill in this form to record consumption:\n• Material: Select the material you created\n• Quantity: Enter today\'s usage (e.g., "500")\n\nThis helps you track what\'s being used daily.',
-                position: 'bottom'
-            }
-        },
-
-        // Step 10: Product Types Setup
-        {
-            element: 'button[onclick="toggleDropdown(\'production-menu\')"]',
-            popover: {
-                title: '🏭 Production Section',
-                description: 'Now let\'s set up your product types. These are the items you produce. Click on the Production dropdown.',
-                position: 'bottom',
-                onNextClick: () => {
-                    const btn = document.querySelector('button[onclick="toggleDropdown(\'production-menu\')"]');
-                    if (btn) btn.click();
-                }
-            }
-        },
-
-        // Step 11: Add Product Type
-        {
-            element: '#production-menu a[href*="product_type"]',
-            popover: {
-                title: '📋 Product Types',
-                description: 'Click "Product Types" to see your product catalog. Let\'s add a new product type.',
-                position: 'right',
-                onNextClick: () => {
-                    const link = document.querySelector('#production-menu a[href*="product_type_list"]');
-                    if (link) {
-                        saveTutorialProgress(10);
-                        window.location.href = link.getAttribute('href') + '?tutorial=active';
-                    }
-                }
-            }
-        },
-
-        // Step 12: Create Product Type Form
-        {
-            element: 'a[href*="product_type_create"]',
-            popover: {
-                title: '➕ Add Product Type',
-                description: 'Click "Add Product Type" and create a sample product:\n• Name: e.g., "Food Pack"\n• Description: e.g., "Standard meal pack"\n\nClick Next after creating it.',
-                position: 'bottom',
-                onNextClick: () => {
-                    const link = document.querySelector('a[href*="product_type_create"]');
-                    if (link) {
-                        saveTutorialProgress(11);
-                        window.location.href = link.getAttribute('href') + '?tutorial=active';
-                    }
-                }
-            }
-        },
-
-        // Step 13: Production Recording
-        {
-            element: 'button[onclick="toggleDropdown(\'production-menu\')"]',
-            popover: {
-                title: '📈 Record Production',
-                description: 'Let\'s record daily production output. Click the Production dropdown to access production recording.',
-                position: 'bottom',
-                onNextClick: () => {
-                    const btn = document.querySelector('button[onclick="toggleDropdown(\'production-menu\')"]');
-                    if (btn) btn.click();
-                }
-            }
-        },
-
-        // Step 14: Production Form
-        {
-            element: '#production-menu a[href*="production_create"]',
-            popover: {
-                title: '➕ Record Production',
-                description: 'Click here to record production for today.',
-                position: 'right',
-                onNextClick: () => {
-                    const link = document.querySelector('#production-menu a[href*="production_create"]');
-                    if (link) {
-                        saveTutorialProgress(13);
-                        window.location.href = link.getAttribute('href') + '?tutorial=active';
-                    }
-                }
-            }
-        },
-
-        // Step 15: Customers
-        {
-            element: 'button[onclick="toggleDropdown(\'sales-menu\')"]',
-            popover: {
-                title: '👥 Sales & Orders',
-                description: 'Now let\'s set up customers and orders. Click the Sales dropdown.',
-                position: 'bottom',
-                onNextClick: () => {
-                    const btn = document.querySelector('button[onclick="toggleDropdown(\'sales-menu\')"]');
-                    if (btn) btn.click();
-                }
-            }
-        },
-
-        // Step 16: Customer List
-        {
-            element: '#sales-menu a[href*="customer_list"]',
-            popover: {
-                title: '👥 Customers',
-                description: 'Click here to manage your customer database. All purchase orders are linked to customers.',
-                position: 'right',
-                onNextClick: () => {
-                    const link = document.querySelector('#sales-menu a[href*="customer_list"]');
-                    if (link) {
-                        saveTutorialProgress(15);
-                        window.location.href = link.getAttribute('href') + '?tutorial=active';
-                    }
-                }
-            }
-        },
-
-        // Step 17: Add Customer
-        {
-            element: 'a[href*="customer_create"]',
-            popover: {
-                title: '➕ Create Customer',
-                description: 'Click "Add Customer" to create a sample customer:\n• Name: e.g., "ABC Restaurant"\n• Contact: e.g., "555-1234"',
-                position: 'bottom',
-                onNextClick: () => {
-                    const link = document.querySelector('a[href*="customer_create"]');
-                    if (link) {
-                        saveTutorialProgress(16);
-                        window.location.href = link.getAttribute('href') + '?tutorial=active';
-                    }
-                }
-            }
-        },
-
-        // Step 18: Orders
-        {
-            element: 'button[onclick="toggleDropdown(\'sales-menu\')"]',
-            popover: {
-                title: '📋 Purchase Orders',
-                description: 'Let\'s create a purchase order. Click the Sales dropdown again.',
-                position: 'bottom',
-                onNextClick: () => {
-                    const btn = document.querySelector('button[onclick="toggleDropdown(\'sales-menu\')"]');
-                    if (btn) btn.click();
-                }
-            }
-        },
-
-        // Step 19: Create Order
-        {
-            element: '#sales-menu a[href*="purchase_order_create"]',
-            popover: {
-                title: '📋 New Order',
-                description: 'Click "New Order" to create a sample purchase order with the customer and product you created.',
-                position: 'right',
-                onNextClick: () => {
-                    const link = document.querySelector('#sales-menu a[href*="purchase_order_create"]');
-                    if (link) {
-                        saveTutorialProgress(18);
-                        window.location.href = link.getAttribute('href') + '?tutorial=active';
-                    }
-                }
-            }
-        },
-
-        // Step 20: Order Detail & Fulfillment
-        {
-            element: '.flex.justify-between',
-            popover: {
-                title: '✅ Track Order Progress',
-                description: 'After creating an order, you\'ll see the fulfillment progress here. You can:\n• View all items and their status\n• Add delivery updates\n• Track fulfillment percentage\n• Auto-update status when fully fulfilled',
-                position: 'bottom'
-            }
-        },
-
-        // Step 21: Profile & Settings
-        {
-            element: '.relative.group:last-child',
-            popover: {
-                title: '👤 Profile & Settings',
-                description: 'Click your profile avatar in the top-right to access:\n• Your profile information\n• Change password\n• Logout',
-                position: 'bottom'
-            }
-        },
-
-        // Step 22: Tutorial Complete
-        {
-            element: '.bg-gradient-to-r.from-blue-50',
-            popover: {
-                title: '🎉 Tutorial Complete!',
-                description: 'Congratulations! You\'ve completed the tutorial.\n\nSample data created:\n✓ 1 Raw Material\n✓ 1 Consumption Entry\n✓ 1 Product Type\n✓ 1 Production Entry\n✓ 1 Customer\n✓ 1 Purchase Order\n\nYou can delete this data from each section, or keep it as examples.\n\nYou can restart this tutorial anytime from the Tutorial button in the navigation bar.',
-                position: 'bottom'
+                title: '⚡ Quick Tips',
+                description: 'Explore the system by clicking on menu items. Start with setting up your raw materials, then products, customers, and orders. Happy managing!'
             }
         }
     ];
@@ -488,9 +247,4 @@ document.addEventListener('DOMContentLoaded', function() {
             startTutorialFromStep(tutorialProgress.step);
         }, 500);
     }
-});
-
-// Add completion event listener when Driver.js is done
-document.addEventListener('driver.finished', () => {
-    completeTutorial();
 });

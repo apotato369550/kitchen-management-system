@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: kitchen-management-system
+    runtime: python
+    pythonVersion: "3.12"
+    region: singapore
+    plan: free
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn kitchen_management_system.wsgi:application"
+    envVars:
+      - key: DEBUG
+        value: "False"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALLOWED_HOSTS
+        value: "*.onrender.com,kitchen-management-system.onrender.com"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: kitchen_db
+          property: connectionString
+
+databases:
+  - name: kitchen_db
+    databaseName: kitchen_db
+    user: postgres
+    region: singapore
+    plan: free

@@ -41,9 +41,4 @@ urlpatterns = [
     path('orders/<uuid:pk>/update/', views.purchase_order_add_update, name='purchase_order_add_update'),
     path('orders/<uuid:pk>/status/', views.purchase_order_change_status, name='purchase_order_change_status'),
     path('orders/<uuid:pk>/delete/', views.purchase_order_delete, name='purchase_order_delete'),
-
-    # Tutorial
-    path('tutorial/complete/', views.tutorial_complete, name='tutorial_complete'),
-    path('tutorial/dismiss/', views.tutorial_dismiss, name='tutorial_dismiss'),
-    path('tutorial/reset/', views.tutorial_reset, name='tutorial_reset'),
 ]
