@@ -2,7 +2,7 @@ services:
   - type: web
     name: kitchen-management-system
     runtime: python
-    pythonVersion: "3.12"
+    runtimeVersion: 3.12
     region: singapore
     plan: free
     buildCommand: "./build.sh"
