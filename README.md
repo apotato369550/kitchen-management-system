@@ -1,4 +1,4 @@
-# Kitchen Management System
+# Cebu Best Value Trading - Kitchen Management System
 
 A Django-based kitchen management and purchase order tracking system for food businesses.
 
@@ -8,6 +8,8 @@ A Django-based kitchen management and purchase order tracking system for food bu
 - **Raw Materials Tracker**: Daily recording of consumed raw materials (meat, vegetables, oil, packaging)
 - **Production Tracker**: Daily tracking of production output (food packs, platters, bilao)
 - **Purchase Order Management**: Create and manage customer orders with staggered fulfillment tracking
+- **Data Export**: Export all data to Excel and PDF formats for reporting and backup
+- **Dark Mode**: Built-in dark mode support for comfortable viewing
 
 ## Tech Stack
 
@@ -194,6 +196,75 @@ python manage.py test
 # Check for issues
 python manage.py check
 ```
+
+## Data Export
+
+### Excel Export
+Export any data module to Excel format:
+- **Raw Materials**: `/raw-materials/export/excel/`
+- **Consumption**: `/consumption/export/excel/`
+- **Products**: `/product-types/export/excel/`
+- **Production**: `/production/export/excel/`
+- **Customers**: `/customers/export/excel/`
+- **Orders**: `/orders/export/excel/`
+
+### PDF Export
+Export any data module to PDF format:
+- **Raw Materials**: `/raw-materials/export/pdf/`
+- **Consumption**: `/consumption/export/pdf/`
+- **Products**: `/product-types/export/pdf/`
+- **Production**: `/production/export/pdf/`
+- **Customers**: `/customers/export/pdf/`
+- **Orders**: `/orders/export/pdf/`
+
+All exports include:
+- Formatted headers with company branding
+- Export timestamp
+- Summary statistics
+- Professional styling for print/sharing
+
+## Testing & Sample Data
+
+### Run Tests
+Test all CRUD operations in the system:
+```bash
+python manage.py test_data_operations
+```
+
+### Populate Sample Data
+Create realistic sample data for demos and testing:
+```bash
+python manage.py test_data_operations --populate
+```
+
+This creates:
+- 5 raw materials with various categories
+- 3 product types
+- 4 sample customers
+- 2 production records
+- 2 purchase orders
+
+All sample data is marked with `SAMPLE_` prefix for easy identification and deletion.
+
+### Clear Sample Data
+Remove all sample data from the database:
+```bash
+python manage.py test_data_operations --clear-samples
+```
+
+### Verbose Testing
+Run tests with detailed output:
+```bash
+python manage.py test_data_operations --verbose
+```
+
+### Test Specific Module
+Test a specific module's operations:
+```bash
+python manage.py test_data_operations --test raw_materials
+```
+
+Available modules: `raw_materials`, `consumption`, `product_types`, `production`, `customers`, `purchase_orders`
 
 ## Troubleshooting
 

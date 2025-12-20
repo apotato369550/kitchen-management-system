@@ -7,9 +7,59 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2025-12-20
+
+### Added
+- **Data Export Functionality** (Plan 07)
+  - Excel export for all 6 data modules (Raw Materials, Consumption, Products, Production, Customers, Orders)
+  - PDF export for all 6 data modules with professional formatting
+  - Export service module (`core/services/export.py`) with reusable export functions
+  - Timestamped export filenames for automatic organization
+  - Excel: Formatted headers, auto-column widths, summary statistics
+  - PDF: Headers with company branding, metadata, summary sections, professional table formatting
+  - 12 new export views with proper authentication checks
+
+- **Test Data Operations Management Command** (Plan 08)
+  - Comprehensive CRUD testing across all 8 models
+  - `--populate` flag to create realistic sample data for demos/testing
+  - `--clear-samples` flag to remove all sample data
+  - `--test` flag to test specific modules
+  - `--verbose` flag for detailed test output
+  - Sample data marked with `SAMPLE_` prefix for easy identification
+  - Creates 5 raw materials, 3 products, 4 customers, 2 orders in sample mode
+  - Test results with pass/fail reporting and execution timing
+
+- **Site Rebranding**
+  - Renamed site from "KitchenHub" to "Cebu Best Value Trading - Kitchen Management System"
+  - Updated page titles, navigation branding, and welcome messages
+  - Company name displayed prominently in login page and navigation bar
+
+- **Tutorial Feature Removal** (Plan 06)
+  - Removed Driver.js tutorial library and all related code
+  - Removed tutorial database fields and migrations
+  - Removed tutorial views, URLs, static files, and template references
+  - Cleaner codebase with fewer external dependencies
+
+### Changed
+- Enhanced `requirements.txt` with export dependencies:
+  - `reportlab>=4.0.0` for PDF generation
+  - `openpyxl>=3.10.0` for Excel file generation
+- Updated `core/urls.py` with 12 new export endpoints
+- Enhanced `core/views.py` with 12 export view functions
+- Updated `README.md` with export and testing documentation
+- Improved documentation for export features and testing capabilities
+
+### Removed
+- Interactive tutorial feature (Driver.js implementation)
+- Tutorial static files (`tutorial.js`, `tutorial-overrides.css`)
+- Tutorial database model and views
+- Tutorial references from templates
+
 ### Planned
 - Raw materials + production tracker UI
 - Purchase order tracker UI
+- CSV export format support
+- Scheduled automatic exports
 
 ## [0.2.0] - 2025-12-15
 

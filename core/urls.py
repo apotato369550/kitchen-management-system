@@ -41,4 +41,28 @@ urlpatterns = [
     path('orders/<uuid:pk>/update/', views.purchase_order_add_update, name='purchase_order_add_update'),
     path('orders/<uuid:pk>/status/', views.purchase_order_change_status, name='purchase_order_change_status'),
     path('orders/<uuid:pk>/delete/', views.purchase_order_delete, name='purchase_order_delete'),
+
+    # Export - Raw Materials
+    path('raw-materials/export/excel/', views.export_raw_materials_excel, name='export_raw_materials_excel'),
+    path('raw-materials/export/pdf/', views.export_raw_materials_pdf, name='export_raw_materials_pdf'),
+
+    # Export - Consumption
+    path('consumption/export/excel/', views.export_consumption_excel, name='export_consumption_excel'),
+    path('consumption/export/pdf/', views.export_consumption_pdf, name='export_consumption_pdf'),
+
+    # Export - Products
+    path('product-types/export/excel/', views.export_products_excel, name='export_products_excel'),
+    path('product-types/export/pdf/', views.export_products_pdf, name='export_products_pdf'),
+
+    # Export - Production
+    path('production/export/excel/', views.export_production_excel, name='export_production_excel'),
+    path('production/export/pdf/', views.export_production_pdf, name='export_production_pdf'),
+
+    # Export - Customers
+    path('customers/export/excel/', views.export_customers_excel, name='export_customers_excel'),
+    path('customers/export/pdf/', views.export_customers_pdf, name='export_customers_pdf'),
+
+    # Export - Orders
+    path('orders/export/excel/', views.export_orders_excel, name='export_orders_excel'),
+    path('orders/export/pdf/', views.export_orders_pdf, name='export_orders_pdf'),
 ]
