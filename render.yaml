@@ -23,6 +23,5 @@ services:
 databases:
   - name: kitchen_db
     databaseName: kitchen_db
-    user: postgres
     region: singapore
     plan: free
