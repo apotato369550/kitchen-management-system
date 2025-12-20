@@ -2,12 +2,13 @@ services:
   - type: web
     name: kitchen-management-system
     runtime: python
-    runtimeVersion: 3.12
     region: singapore
     plan: free
     buildCommand: "./build.sh"
     startCommand: "gunicorn kitchen_management_system.wsgi:application"
     envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.0"
       - key: DEBUG
         value: "False"
       - key: SECRET_KEY
