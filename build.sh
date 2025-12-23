@@ -12,6 +12,9 @@ python manage.py collectstatic --no-input
 echo "Running database migrations..."
 python manage.py migrate
 
+echo "Setting up default groups..."
+python manage.py setup_groups
+
 echo "Creating superuser if needed..."
 python manage.py create_superuser
 

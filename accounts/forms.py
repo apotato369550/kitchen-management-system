@@ -37,9 +37,9 @@ class UserCreateForm(UserCreationForm):
         user = super().save(commit=False)
         if commit:
             user.save()
-            # Add user to selected group
+            # Add user to selected group (create if doesn't exist)
             role = self.cleaned_data['role']
-            group = Group.objects.get(name=role)
+            group, created = Group.objects.get_or_create(name=role)
             user.groups.add(group)
         return user
 
@@ -84,10 +84,10 @@ class UserEditForm(forms.ModelForm):
         user = super().save(commit=False)
         if commit:
             user.save()
-            # Update user's group
+            # Update user's group (create if doesn't exist)
             role = self.cleaned_data['role']
             user.groups.clear()
-            group = Group.objects.get(name=role)
+            group, created = Group.objects.get_or_create(name=role)
             user.groups.add(group)
         return user
 
