@@ -4,8 +4,8 @@ from django.core.exceptions import PermissionDenied
 
 
 def is_admin(user):
-    """Check if user is in Admin group"""
-    return user.is_authenticated and user.groups.filter(name='Admin').exists()
+    """Check if user is in Admin group or is a superuser"""
+    return user.is_authenticated and (user.is_superuser or user.groups.filter(name='Admin').exists())
 
 
 def is_management(user):
