@@ -3,12 +3,13 @@ from django.contrib.auth.models import Group, Permission
 
 
 class Command(BaseCommand):
-    help = 'Create default user groups (Admin and Management)'
+    help = 'Create default user groups (Admin, Management, and Viewer)'
 
     def handle(self, *args, **options):
         groups_data = {
             'Admin': [],
             'Management': [],
+            'Viewer': [],
         }
 
         for group_name, permissions in groups_data.items():

@@ -13,6 +13,11 @@ def is_management(user):
     return user.is_authenticated and user.groups.filter(name='Management').exists()
 
 
+def is_viewer(user):
+    """Check if user is in Viewer group (read-only access)"""
+    return user.is_authenticated and user.groups.filter(name='Viewer').exists()
+
+
 def admin_required(view_func):
     """Decorator to require admin group membership"""
     @wraps(view_func)

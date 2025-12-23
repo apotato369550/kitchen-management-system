@@ -9,6 +9,7 @@ class UserCreateForm(UserCreationForm):
     ROLE_CHOICES = [
         ('Admin', 'Admin'),
         ('Management', 'Management'),
+        ('Viewer', 'Viewer (Read-only)'),
     ]
 
     role = forms.ChoiceField(
@@ -50,6 +51,7 @@ class UserEditForm(forms.ModelForm):
     ROLE_CHOICES = [
         ('Admin', 'Admin'),
         ('Management', 'Management'),
+        ('Viewer', 'Viewer (Read-only)'),
     ]
 
     role = forms.ChoiceField(
@@ -79,6 +81,8 @@ class UserEditForm(forms.ModelForm):
                 self.fields['role'].initial = 'Admin'
             elif self.instance.groups.filter(name='Management').exists():
                 self.fields['role'].initial = 'Management'
+            elif self.instance.groups.filter(name='Viewer').exists():
+                self.fields['role'].initial = 'Viewer'
 
     def save(self, commit=True):
         user = super().save(commit=False)
