@@ -14,71 +14,68 @@ This file provides context and instructions for Gemini when working on the "Cebu
 2.  **No Correlation (Yet):** Raw material inputs and production outputs are tracked separately. Do not attempt to build automated conversion logic between them.
 3.  **Authentication:** No public signup. Admins create accounts.
 4.  **User Roles:**
-    *   **Admin:** Full access (User management + Operations).
+    *   **Admin:** Full access (User management + Operations). Can be a superuser.
     *   **Management:** Operations only (Raw materials, Production, Orders).
+    *   **Viewer:** (Future use) Intended for read-only access. The group is created but not currently used in any views.
 
 ## Tech Stack
 
 *   **Language:** Python 3.12+
 *   **Framework:** Django 6.0
-*   **Frontend:** Tailwind CSS (served via Django templates)
-*   **Database:** PostgreSQL (Supabase via connection pooler)
-*   **Hosting:** Vercel (Primary), Render (Alternative build script present)
-*   **Dependencies:** `django-axes`, `gunicorn`, `whitenoise`, `dj-database-url`, `reportlab`, `openpyxl`.
+*   **Frontend:** Tailwind CSS
+*   **Database:** PostgreSQL (primary deployment via Render, can connect to Supabase for local dev)
+*   **Hosting:** **Render**
+*   **Dependencies:** `django-axes` (security), `gunicorn` (server), `whitenoise` (static files), `dj-database-url` (db connection), `reportlab` (PDF), `openpyxl` (Excel).
 
 ## Project Structure
 
 ```text
-/home/jay/Desktop/Coding Stuff/kitchen-management-system/
-├── accounts/                      # Authentication app (User management, Login/Logout)
-├── core/                          # Main business logic
-│   ├── models.py                  # Core database models (Customer, RawMaterial, etc.)
-│   ├── views.py                   # View controllers (CRUD + Exports)
-│   ├── forms.py                   # Django forms
-│   ├── services/                  # Business logic services (e.g., export.py)
-│   └── templates/core/            # UI Templates
-├── kitchen_management_system/     # Project configuration (settings.py, urls.py)
-├── plans/                         # Implementation documentation & roadmap
-├── manage.py                      # Django CLI entry point
-├── .env                           # Environment variables (Sensitive!)
-└── requirements.txt               # Python dependencies
+/
+├── accounts/                  # User management, login/logout, roles
+├── core/                      # Main business logic (models, views, forms)
+│   ├── services/              # Business logic services (e.g., export.py)
+│   └── management/commands/   # Custom Django commands (test_data, create_superuser)
+├── kitchen_management_system/ # Django project configuration (settings.py, urls.py)
+├── plans/                     # Implementation documentation & roadmap
+├── build.sh                   # Deployment build script for Render
+├── render.yaml                # Infrastructure-as-code for Render
+├── manage.py                  # Django CLI entry point
+├── .env                       # Environment variables (local development)
+└── requirements.txt           # Python dependencies
 ```
 
-## Key Workflows
+## Key Workflows & Commands
 
-### 1. Development Server
+### 1. Development Server (Local)
+Requires a `.env` file configured for a database (e.g., Supabase).
 ```bash
-source venv/bin/activate
+# Set up the database with initial groups and a default admin
+python manage.py setup_auth
+
+# Run the server
 python manage.py runserver
 ```
 
 ### 2. Database Migrations
-**Important:** The project uses Supabase. Ensure `.env` is configured correctly before migrating.
 ```bash
 python manage.py makemigrations
 python manage.py migrate
 ```
 
-### 3. Testing
-**General Tests:**
+### 3. Testing & Sample Data
+A custom management command is available for comprehensive testing.
 ```bash
-python manage.py test
-```
-
-**Data Operations Test Script:**
-A custom management command is available for comprehensive testing and sample data generation.
-```bash
-# Run CRUD tests
+# Run all CRUD tests
 python manage.py test_data_operations
 
-# Populate sample data
+# Populate the database with realistic sample data
 python manage.py test_data_operations --populate
 
-# Clear sample data
+# Clear all sample data
 python manage.py test_data_operations --clear-samples
 ```
 
-## Database Schema (Key Models)
+## Database Schema (`core/models.py`)
 
 All models use UUIDs for primary keys.
 
@@ -91,28 +88,31 @@ All models use UUIDs for primary keys.
 *   **`PurchaseOrderItem`**: Line items in an order.
 *   **`PurchaseOrderUpdate`**: Log of updates/partial deliveries for an order.
 
-## Deployment
+## Deployment (Render)
 
-*   **Platform:** Vercel
-*   **Config:** `vercel.json` (Assumed standard Vercel Django setup)
-*   **Static Files:** Handled by `whitenoise` in production; `collectstatic` required during build.
+*   **Platform:** Render
+*   **Configuration:** `render.yaml` defines the web service and database.
+*   **Build Process:** `build.sh` script installs dependencies, collects static files, runs migrations, and creates user groups and a superuser.
+*   **Continuous Deployment:** Pushing to the `main` branch on GitHub automatically triggers a new deployment on Render.
+*   **Superuser Creation:** On first deploy, a superuser is created using credentials from environment variables set in `render.yaml` (`ADMIN_USERNAME`, `ADMIN_PASSWORD`, etc.).
 
 ## Current Status (v0.3.0)
 
 *   **Completed:**
-    *   Auth System (Admin/Management).
-    *   Database Schema & Migrations.
-    *   CRUD Views for all models.
-    *   Dark Mode UI.
-    *   Data Export (Excel & PDF).
-    *   Sample Data Generator.
+    *   Auth System (Admin/Management roles).
+    *   Database Schema & Migrations for all 8 models.
+    *   Full CRUD views for all models.
+    *   Dark Mode UI with Tailwind CSS.
+    *   Data Export to Excel & PDF for all modules.
+    *   Robust `test_data_operations` command for testing and sample data.
+    *   Deployment configuration for **Render**.
 *   **Pending/In-Progress:**
     *   Refinement of UI for specific trackers (Plan 04 & 05).
-    *   Scheduled automatic exports.
 
 ## Interaction Guidelines for Gemini
 
-*   **Context Awareness:** Always check `models.py` and `views.py` in `core/` before suggesting changes to business logic.
-*   **Style:** Match the existing Tailwind CSS usage in templates.
+*   **Context Awareness:** Always check `core/models.py` and `core/views.py` before suggesting changes to business logic.
+*   **Style:** Match the existing Tailwind CSS usage and Django patterns.
+*   **Deployment:** Be aware that the project is deployed on **Render**. Changes to `render.yaml` or `build.sh` will affect deployment.
 *   **Safety:** Never output the contents of `.env`.
 *   **Conciseness:** Be brief. The user values efficiency and clarity.

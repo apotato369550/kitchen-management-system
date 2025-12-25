@@ -1,231 +1,118 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides context and instructions for Claude when working on the "Cebu Best Value Trading" Kitchen Management System.
 
 ## Project Overview
 
-Kitchen management and purchase order system for a food business. Three main features:
+**Name:** Cebu Best Value Trading Kitchen Management System
+**Purpose:** A specialized kitchen management and purchase order tracking system for a food business.
+**Core Philosophy:** **SLEEK AND SIMPLE.** The user's vision is paramount. Avoid feature creep, over-engineering, or unsolicited "AI ideas." Focus on fast data entry, mobile-friendliness, and a clean, minimalist design.
 
-1. **Authentication System** - Secure, admin-controlled user management. No public signup - only admins can create accounts.
+## Core Mandates
 
-2. **Raw Materials + Production Tracker** - Daily recording of raw materials consumed (meat, vegetables, oil, packaging with various measurements) and production output (food packs, platters/bilao, contents). No conversion relationship between inputs and outputs.
-
-3. **Purchase Order Tracker** - Create, update, monitor purchase orders associated with customers. Orders can be fulfilled in full or staggered with update history (comment-style).
+1.  **Strict Adherence to Vision:** Do not suggest new features unless explicitly asked. Implement exactly what is requested.
+2.  **No Correlation (Yet):** Raw material inputs and production outputs are tracked separately. Do not attempt to build automated conversion logic between them.
+3.  **Authentication:** No public signup. Admins create accounts.
+4.  **User Roles:**
+    *   **Admin:** Full access (User management + Operations). Can be a superuser.
+    *   **Management:** Operations only (Raw materials, Production, Orders).
+    *   **Viewer:** (Future use) Intended for read-only access. The group is created but not currently used in any views.
 
 ## Tech Stack
 
-- **Backend**: Django 6.0
-- **Frontend**: Tailwind CSS
-- **Database**: PostgreSQL (Supabase via connection pooler)
-- **Authentication**: Django's built-in auth system
-- **Hosting**: Vercel
-- **Python**: 3.12+
-
-## Database Connection
-
-Uses Supabase PostgreSQL via connection pooler (IPv4):
-- Host: `aws-1-ap-south-1.pooler.supabase.com`
-- Port: `6543`
-- User: `postgres.obfyvlyycxvtmbfnwbuw`
-- Password: Stored in `.env` file
-
-## User Roles
-
-### Admin
-- Full system access
-- Can create, edit, and delete user accounts
-- Can manage all data (raw materials, production, purchase orders)
-
-### Management (Owner & Secretary)
-- Can manage daily operations
-- Cannot create or manage user accounts
-- Access to all operational features
-
-## Design Philosophy
-
-**SLEEK AND SIMPLE.** Follow the owner's vision exactly:
-- No feature creep
-- No unsolicited additions
-- No overcomplicated UI
-- Fast data entry priority
-- Mobile-friendly (kitchen environment)
-- Clean, minimalist design
+*   **Language:** Python 3.12+
+*   **Framework:** Django 6.0
+*   **Frontend:** Tailwind CSS
+*   **Database:** PostgreSQL (primary deployment via Render, can connect to Supabase for local dev)
+*   **Hosting:** **Render**
+*   **Dependencies:** `django-axes` (security), `gunicorn` (server), `whitenoise` (static files), `dj-database-url` (db connection), `reportlab` (PDF), `openpyxl` (Excel).
 
 ## Project Structure
 
-```
-kitchen-management-system/
-├── core/                          # Main app: models, views, templates, services
-│   ├── migrations/                # Database migrations
-│   ├── management/commands/       # Management commands
-│   │   └── test_data_operations.py  # CRUD testing & sample data
-│   ├── services/                  # Utility services
-│   │   └── export.py              # PDF/Excel export functions
-│   ├── templates/core/            # HTML templates
-│   ├── static/core/               # CSS, JS files
-│   ├── models.py                  # 8 models (Customer, RawMaterial, etc.)
-│   ├── views.py                   # View functions (40+ views including exports)
-│   ├── forms.py                   # Form classes
-│   ├── urls.py                    # URL routing (45+ endpoints)
-│   └── admin.py                   # Admin panel config
-├── accounts/                      # Auth app with user management
-├── kitchen_management_system/     # Django project settings
-│   ├── settings.py                # Main settings file
-│   ├── urls.py                    # Root URL config
-│   └── wsgi.py                    # WSGI entry point
-├── plans/                         # Implementation plans
-│   ├── 01-database-schema.md
-│   ├── 02-django-init.md
-│   ├── 03-authentication-system.md
-│   ├── 04-raw-materials-production-tracker.md
-│   └── 05-purchase-order-tracker.md
-├── .env                           # Environment variables (not in git)
-├── .gitignore
-├── manage.py
-├── requirements.txt
-├── README.md                      # Developer instructions
-├── CHANGELOG.md                   # Change history
-└── INSTRUCTIONS.md                # Original project requirements
+```text
+/
+├── accounts/                  # User management, login/logout, roles
+├── core/                      # Main business logic (models, views, forms)
+│   ├── services/              # Business logic services (e.g., export.py)
+│   └── management/commands/   # Custom Django commands (test_data, create_superuser)
+├── kitchen_management_system/ # Django project configuration (settings.py, urls.py)
+├── plans/                     # Implementation documentation & roadmap
+├── build.sh                   # Deployment build script for Render
+├── render.yaml                # Infrastructure-as-code for Render
+├── manage.py                  # Django CLI entry point
+├── .env                       # Environment variables (local development)
+└── requirements.txt           # Python dependencies
 ```
 
-## Database Models (Implemented)
+## Key Workflows & Commands
 
-All models use UUID primary keys for Supabase compatibility:
-
-1. **Customer** - name, contact_info, created_at
-2. **RawMaterial** - name, category (enum), unit
-3. **DailyConsumption** - date, raw_material (FK), quantity, created_at
-4. **ProductType** - name, description
-5. **DailyProduction** - date, product_type (FK), quantity, contents_description, created_at
-6. **PurchaseOrder** - customer (FK), status (enum), created_at, updated_at
-7. **PurchaseOrderItem** - purchase_order (FK), product_type (FK), quantity_ordered, quantity_fulfilled
-8. **PurchaseOrderUpdate** - purchase_order (FK), note, quantity_delivered, created_at
-
-## Current Implementation Status
-
-### ✅ Completed (Version 0.3.0)
-- Django project initialized with Django 6.0
-- Database models (8 models) created and migrated to Supabase
-- Authentication system with user roles (Admin, Management) - Plan 03
-- Full CRUD operations for all models
-- Dark mode enabled by default with Tailwind CSS
-- Professional UI with responsive design
-- 40+ view functions with proper authentication checks
-- 45+ URL endpoints with organized routing
-- **Data Export System** (Plan 07):
-  - Excel export for all 6 modules
-  - PDF export for all 6 modules with professional formatting
-  - Export service module with reusable functions
-  - Timestamped filenames
-- **Test Data Operations** (Plan 08):
-  - CRUD testing command for all modules
-  - Sample data population with `--populate` flag
-  - Clear sample data with `--clear-samples` flag
-  - Test-specific modules with `--test` flag
-- Site rebranding from "KitchenHub" to "Cebu Best Value Trading"
-- Tutorial feature removed (Plan 06) for cleaner codebase
-- Dashboard with quick access cards
-- Login/logout with throttling
-- User management interface
-- Comprehensive documentation in README.md
-
-### 🚧 In Progress
-- None currently
-
-### 📋 Planned (see plans/ directory)
-- Raw materials + production tracker UI (plan 04)
-- Purchase order tracker UI (plan 05)
-- CSV export format support
-- Scheduled automatic exports
-- Additional reporting features
-
-## Development Guidelines
-
-### Code Style
-- Follow Django best practices
-- Use class-based views where appropriate
-- Keep views simple and focused
-- Use Django forms for all user input
-- Implement proper validation
-
-### Security
-- All views require authentication (except login)
-- Use CSRF protection on all forms
-- Validate user permissions (admin vs management)
-- Sanitize user input
-- Use parameterized queries (Django ORM handles this)
-
-### UI/UX
-- Mobile-first responsive design
-- Large, touch-friendly buttons
-- Clear error messages
-- Fast page loads
-- Minimal clicks to complete tasks
-
-### Testing
-- Write tests for critical business logic
-- Test all forms and validation
-- Test permission enforcement
-- Test edge cases (empty data, invalid input)
-
-## Key Implementation Notes
-
-1. **No Input-Output Conversion**: Raw materials and production are tracked separately with no automated conversion logic.
-
-2. **Staggered Fulfillment**: Purchase orders support partial deliveries tracked via PurchaseOrderUpdate model.
-
-3. **Admin-Only User Creation**: No signup page. Admins create accounts through user management panel.
-
-4. **Mobile-Friendly**: Kitchen environment requires touch-friendly interface.
-
-5. **Simple Over Clever**: Prefer straightforward implementations over clever abstractions.
-
-## Common Tasks
-
-### Run Development Server
+### 1. Development Server (Local)
+Requires a `.env` file configured for a database (e.g., Supabase).
 ```bash
-source venv/bin/activate  # or .\venv\Scripts\activate on Windows
+# Set up the database with initial groups and a default admin
+python manage.py setup_auth
+
+# Run the server
 python manage.py runserver
 ```
 
-### Create/Apply Migrations
+### 2. Database Migrations
 ```bash
 python manage.py makemigrations
 python manage.py migrate
 ```
 
-### Access Django Admin
+### 3. Testing & Sample Data
+A custom management command is available for comprehensive testing.
 ```bash
-python manage.py createsuperuser  # First time only
-# Then visit http://127.0.0.1:8000/admin/
+# Run all CRUD tests
+python manage.py test_data_operations
+
+# Populate the database with realistic sample data
+python manage.py test_data_operations --populate
+
+# Clear all sample data
+python manage.py test_data_operations --clear-samples
 ```
 
-### Run Tests
-```bash
-python manage.py test
-```
+## Database Schema (`core/models.py`)
 
-## Environment Variables
+All models use UUIDs for primary keys.
 
-Required in `.env` file:
-- `SUPABASE_PROJECT_PASSWORD` - Database password
-- `SUPABASE_HOST` - Connection pooler host
-- `SUPABASE_PORT` - Connection pooler port (6543)
-- `SUPABASE_USER` - Database user with project ref
-- `SECRET_KEY` - Django secret key (generate new for production)
-- `DEBUG` - True for development, False for production
+*   **`Customer`**: Basic contact info.
+*   **`RawMaterial`**: Ingredients/Packaging (Name, Category, Unit).
+*   **`DailyConsumption`**: Tracks usage of raw materials per day.
+*   **`ProductType`**: Definition of sellable items (Food packs, Platters).
+*   **`DailyProduction`**: Tracks output of products per day.
+*   **`PurchaseOrder`**: Orders linked to a Customer. Supports staggered fulfillment.
+*   **`PurchaseOrderItem`**: Line items in an order.
+*   **`PurchaseOrderUpdate`**: Log of updates/partial deliveries for an order.
 
-## Git Workflow
+## Deployment (Render)
 
-- Keep commits atomic and well-described
-- Reference plan files in commit messages when implementing features
-- Never commit `.env` file or secrets
-- Update CHANGELOG.md with significant changes
+*   **Platform:** Render
+*   **Configuration:** `render.yaml` defines the web service and database.
+*   **Build Process:** `build.sh` script installs dependencies, collects static files, runs migrations, and creates user groups and a superuser.
+*   **Continuous Deployment:** Pushing to the `main` branch on GitHub automatically triggers a new deployment on Render.
+*   **Superuser Creation:** On first deploy, a superuser is created using credentials from environment variables set in `render.yaml` (`ADMIN_USERNAME`, `ADMIN_PASSWORD`, etc.).
 
-## Questions or Clarifications
+## Current Status (v0.3.0)
 
-If requirements are unclear:
-1. Check INSTRUCTIONS.md for original requirements
-2. Check relevant plan file in plans/ directory
-3. Ask the project owner (user) for clarification
-4. Keep it simple - avoid assumptions
+*   **Completed:**
+    *   Auth System (Admin/Management roles).
+    *   Database Schema & Migrations for all 8 models.
+    *   Full CRUD views for all models.
+    *   Dark Mode UI with Tailwind CSS.
+    *   Data Export to Excel & PDF for all modules.
+    *   Robust `test_data_operations` command for testing and sample data.
+    *   Deployment configuration for **Render**.
+*   **Pending/In-Progress:**
+    *   Refinement of UI for specific trackers (Plan 04 & 05).
+
+## Interaction Guidelines for Claude
+
+*   **Context Awareness:** Always check `core/models.py` and `core/views.py` before suggesting changes to business logic.
+*   **Style:** Match the existing Tailwind CSS usage and Django patterns.
+*   **Deployment:** Be aware that the project is deployed on **Render**. Changes to `render.yaml` or `build.sh` will affect deployment.
+*   **Safety:** Never output the contents of `.env`.
+*   **Conciseness:** Be brief. The user values efficiency and clarity.
