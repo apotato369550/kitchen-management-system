@@ -1,144 +1,118 @@
-# Implementation Plans - CLAUDE.md
+# CLAUDE.md
 
-## Purpose
+This file provides context and instructions for Claude when working on the "Cebu Best Value Trading" Kitchen Management System.
 
-This directory contains detailed implementation plans for each major feature of the kitchen management system.
+## Project Overview
 
-## Structure
+**Name:** Cebu Best Value Trading Kitchen Management System
+**Purpose:** A specialized kitchen management and purchase order tracking system for a food business.
+**Core Philosophy:** **SLEEK AND SIMPLE.** The user's vision is paramount. Avoid feature creep, over-engineering, or unsolicited "AI ideas." Focus on fast data entry, mobile-friendliness, and a clean, minimalist design.
 
+## Core Mandates
+
+1.  **Strict Adherence to Vision:** Do not suggest new features unless explicitly asked. Implement exactly what is requested.
+2.  **No Correlation (Yet):** Raw material inputs and production outputs are tracked separately. Do not attempt to build automated conversion logic between them.
+3.  **Authentication:** No public signup. Admins create accounts.
+4.  **User Roles:**
+    *   **Admin:** Full access (User management + Operations). Can be a superuser.
+    *   **Management:** Operations only (Raw materials, Production, Orders).
+    *   **Viewer:** (Future use) Intended for read-only access. The group is created but not currently used in any views.
+
+## Tech Stack
+
+*   **Language:** Python 3.12+
+*   **Framework:** Django 6.0
+*   **Frontend:** Tailwind CSS
+*   **Database:** PostgreSQL (primary deployment via Render, can connect to Supabase for local dev)
+*   **Hosting:** **Render**
+*   **Dependencies:** `django-axes` (security), `gunicorn` (server), `whitenoise` (static files), `dj-database-url` (db connection), `reportlab` (PDF), `openpyxl` (Excel).
+
+## Project Structure
+
+```text
+/
+├── accounts/                  # User management, login/logout, roles
+├── core/                      # Main business logic (models, views, forms)
+│   ├── services/              # Business logic services (e.g., export.py)
+│   └── management/commands/   # Custom Django commands (test_data, create_superuser)
+├── kitchen_management_system/ # Django project configuration (settings.py, urls.py)
+├── plans/                     # Implementation documentation & roadmap
+├── build.sh                   # Deployment build script for Render
+├── render.yaml                # Infrastructure-as-code for Render
+├── manage.py                  # Django CLI entry point
+├── .env                       # Environment variables (local development)
+└── requirements.txt           # Python dependencies
 ```
-plans/
-├── 01-database-schema.md                      # Database design
-├── 02-django-init.md                          # Django project setup
-├── 03-authentication-system.md                # Auth implementation plan
-├── 04-raw-materials-production-tracker.md     # Materials/production UI plan
-└── 05-purchase-order-tracker.md               # Purchase order UI plan
+
+## Key Workflows & Commands
+
+### 1. Development Server (Local)
+Requires a `.env` file configured for a database (e.g., Supabase).
+```bash
+# Set up the database with initial groups and a default admin
+python manage.py setup_auth
+
+# Run the server
+python manage.py runserver
 ```
 
-## Plans Overview
+### 2. Database Migrations
+```bash
+python manage.py makemigrations
+python manage.py migrate
+```
 
-### 01 - Database Schema
-**Status**: ✅ Implemented
+### 3. Testing & Sample Data
+A custom management command is available for comprehensive testing.
+```bash
+# Run all CRUD tests
+python manage.py test_data_operations
 
-Defines all database models:
-- Customer
-- RawMaterial
-- DailyConsumption
-- ProductType
-- DailyProduction
-- PurchaseOrder
-- PurchaseOrderItem
-- PurchaseOrderUpdate
+# Populate the database with realistic sample data
+python manage.py test_data_operations --populate
 
-All models implemented in `core/models.py` with UUID primary keys.
+# Clear all sample data
+python manage.py test_data_operations --clear-samples
+```
 
-### 02 - Django Initialization
-**Status**: ✅ Completed
+## Database Schema (`core/models.py`)
 
-Setup steps for Django project:
-- Virtual environment creation
-- Dependency installation
-- Project and app creation
-- Database configuration
-- Basic Hello World view
+All models use UUIDs for primary keys.
 
-All steps completed. Project running successfully.
+*   **`Customer`**: Basic contact info.
+*   **`RawMaterial`**: Ingredients/Packaging (Name, Category, Unit).
+*   **`DailyConsumption`**: Tracks usage of raw materials per day.
+*   **`ProductType`**: Definition of sellable items (Food packs, Platters).
+*   **`DailyProduction`**: Tracks output of products per day.
+*   **`PurchaseOrder`**: Orders linked to a Customer. Supports staggered fulfillment.
+*   **`PurchaseOrderItem`**: Line items in an order.
+*   **`PurchaseOrderUpdate`**: Log of updates/partial deliveries for an order.
 
-### 03 - Authentication System
-**Status**: 📋 Planned
+## Deployment (Render)
 
-Implementation plan for:
-- Django auth system (not Supabase)
-- Admin-only user creation
-- User groups (Admin, Management)
-- Security hardening
-- Login/logout views
-- User management UI
+*   **Platform:** Render
+*   **Configuration:** `render.yaml` defines the web service and database.
+*   **Build Process:** `build.sh` script installs dependencies, collects static files, runs migrations, and creates user groups and a superuser.
+*   **Continuous Deployment:** Pushing to the `main` branch on GitHub automatically triggers a new deployment on Render.
+*   **Superuser Creation:** On first deploy, a superuser is created using credentials from environment variables set in `render.yaml` (`ADMIN_USERNAME`, `ADMIN_PASSWORD`, etc.).
 
-**Next Steps**:
-1. Create `accounts` app
-2. Set up user groups
-3. Implement login/logout views
-4. Create user management views (admin only)
-5. Implement permission checks
+## Current Status (v0.3.0)
 
-### 04 - Raw Materials + Production Tracker
-**Status**: 📋 Planned
+*   **Completed:**
+    *   Auth System (Admin/Management roles).
+    *   Database Schema & Migrations for all 8 models.
+    *   Full CRUD views for all models.
+    *   Dark Mode UI with Tailwind CSS.
+    *   Data Export to Excel & PDF for all modules.
+    *   Robust `test_data_operations` command for testing and sample data.
+    *   Deployment configuration for **Render**.
+*   **Pending/In-Progress:**
+    *   Refinement of UI for specific trackers (Plan 04 & 05).
 
-Implementation plan for:
-- Raw materials library management
-- Daily consumption entry and history
-- Product types library
-- Daily production entry and history
-- Dashboard with today's summary
-- Filtering and search
+## Interaction Guidelines for Claude
 
-**Next Steps**:
-1. Create forms for all models
-2. Implement CRUD views
-3. Create templates with Tailwind CSS
-4. Add filtering and search
-5. Build dashboard
-
-### 05 - Purchase Order Tracker
-**Status**: 📋 Planned
-
-Implementation plan for:
-- Customer management
-- Purchase order creation with line items
-- Order fulfillment tracking (full or staggered)
-- Update history (comment-style)
-- Status management
-- Progress tracking
-
-**Next Steps**:
-1. Create customer management views
-2. Implement order creation with inline formsets
-3. Build order detail view with fulfillment tracking
-4. Create update history system
-5. Add filtering and status management
-
-## Implementation Order
-
-Recommended sequence:
-1. **Authentication System** (Plan 03) - Required first for security
-2. **Raw Materials + Production Tracker** (Plan 04) - Core feature
-3. **Purchase Order Tracker** (Plan 05) - Core feature
-
-## Using These Plans
-
-When implementing a feature:
-1. Read the relevant plan thoroughly
-2. Follow the steps in order
-3. Reference the file structure diagrams
-4. Use the code examples as guides
-5. Test each step before moving on
-6. Update CHANGELOG.md with changes
-
-## Plan Format
-
-Each plan includes:
-- **Goal**: What the plan achieves
-- **Implementation Steps**: Detailed steps to follow
-- **File Structure**: Where files should be created
-- **Code Examples**: Sample code snippets
-- **Testing Checklist**: What to test
-- **Dependencies**: Required packages
-- **Notes**: Important considerations
-
-## Updating Plans
-
-If implementation differs from the plan:
-1. Document why in commit message
-2. Update the plan file if needed
-3. Note changes in CHANGELOG.md
-4. Keep plans in sync with reality
-
-## Best Practices
-
-- Read entire plan before starting
-- Don't skip steps
-- Test incrementally
-- Keep code simple (SLEEK AND SIMPLE philosophy)
-- Ask for clarification if requirements unclear
-- Reference INSTRUCTIONS.md for original requirements
+*   **Context Awareness:** Always check `core/models.py` and `core/views.py` before suggesting changes to business logic.
+*   **Style:** Match the existing Tailwind CSS usage and Django patterns.
+*   **Deployment:** Be aware that the project is deployed on **Render**. Changes to `render.yaml` or `build.sh` will affect deployment.
+*   **Safety:** Never output the contents of `.env`.
+*   **Conciseness:** Be brief. The user values efficiency and clarity.
