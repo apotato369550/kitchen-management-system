@@ -1,278 +1,97 @@
-# Deployment Guide - Render
+# Deployment Guide: Render
 
-This guide walks through deploying the Kitchen Management System to Render.
+This guide provides step-by-step instructions for deploying the Kitchen Management System to Render using the pre-configured `render.yaml` Blueprint.
+
+## How It Works
+
+The repository is configured for **Infrastructure as Code** using `render.yaml`. This file automatically tells Render how to build and deploy two services:
+1.  A **Web Service** running the Django application with Gunicorn.
+2.  A **PostgreSQL Database** for storing all application data.
+
+Continuous deployment is enabled, so every push to the `main` branch will automatically trigger a new build and deployment on Render.
 
 ## Prerequisites
 
-- GitHub account with the repository pushed
-- Render account (free tier available at https://render.com)
-- No credit card required for free tier
+- A GitHub account with the project repository pushed.
+- A Render account (the free tier is sufficient).
 
-## Step 1: Prepare Your Repository
+## Step 1: Create a Render Account and Connect GitHub
 
-### 1.1 Install Updated Dependencies Locally
-```bash
-pip install -r requirements.txt
-```
+1.  **Sign Up**: Go to [render.com](https://render.com) and sign up, preferably using your GitHub account for seamless integration.
+2.  **Authorize Access**: Grant Render permission to access your GitHub repositories. You can choose to grant access to all repositories or just the `kitchen-management-system` repo.
 
-This installs the new production packages:
-- `gunicorn` - Production WSGI server
-- `whitenoise` - Static file serving
-- `dj-database-url` - Database URL parsing
+## Step 2: Deploy the Blueprint
 
-### 1.2 Test Locally
-```bash
-DEBUG=False ALLOWED_HOSTS=localhost python manage.py runserver
-```
+1.  From the Render Dashboard, click **New +** and select **Blueprint**.
+2.  **Connect Repository**: If you haven't already, connect the GitHub repository for this project.
+3.  **Review Services**: Render will automatically detect and parse the `render.yaml` file. It will show you the two services to be created:
+    *   `kitchen-management-system` (Web Service)
+    *   `kitchen_db` (PostgreSQL Database)
+4.  **Approve**: Click **Approve** to start the initial deployment.
 
-Verify the app starts without errors.
+The first deployment will take several minutes as Render provisions the database, installs Python dependencies, and runs the build script for the first time.
 
-### 1.3 Commit Configuration Files
-```bash
-git add requirements.txt kitchen_management_system/settings.py build.sh render.yaml
-git commit -m "Add Render deployment configuration"
-git push origin main
-```
+## Step 3: Access Your Application
 
-The following files are now in your repository:
-- `requirements.txt` - Updated with production dependencies
-- `kitchen_management_system/settings.py` - Updated for Render
-- `build.sh` - Deployment build script
-- `render.yaml` - Infrastructure as Code configuration
+Once the deployment status shows **"Live"**, your application is ready.
 
-## Step 2: Create Render Account & Connect GitHub
+-   **URL**: Your app will be available at the URL shown on your Render dashboard (e.g., `https://kitchen-management-system.onrender.com`).
+-   **Login**: Navigate to the `/accounts/login/` path to log in.
 
-### 2.1 Sign Up on Render
-1. Go to https://render.com
-2. Click "Sign up" and choose GitHub authentication
-3. Authorize Render to access your GitHub account
+### Automatic Admin User Creation
 
-### 2.2 Grant Repository Access
-1. After signing in, go to Account Settings → GitHub
-2. Click "Connect repository"
-3. Select the `kitchen-management-system` repository
-4. Grant access
+On the very first deployment, the `build.sh` script automatically runs a command (`python manage.py create_superuser`) to create an admin user for you.
 
-## Step 3: Deploy Using Blueprint (render.yaml)
+**This only runs if no other superusers exist.**
 
-### 3.1 Create New Blueprint
-1. On Render dashboard, click **"New +"** (top right)
-2. Select **"Blueprint"**
-3. Paste your repository URL:
-   ```
-   https://github.com/YOUR_USERNAME/kitchen-management-system
-   ```
-4. Click "Connect"
+The credentials for this user are taken directly from the environment variables defined in `render.yaml`:
+-   **Username**: `admin` (from the `ADMIN_USERNAME` variable)
+-   **Password**: A securely generated random password (from the `ADMIN_PASSWORD` variable, which has `generateValue: true`).
 
-### 3.2 Review Configuration
-Render will read `render.yaml` and show you the services to be created:
-- **Web Service**: `kitchen-management-system` (Python 3.12, free tier)
-- **PostgreSQL Database**: `kitchen_db` (free tier)
+**To find the auto-generated password:**
+1.  In your Render dashboard, navigate to the `kitchen-management-system` web service.
+2.  Go to the **Environment** tab.
+3.  Find the `ADMIN_PASSWORD` key and click the "eye" icon or "copy" button to get the value.
 
-The configuration includes:
-- Build command: `./build.sh` (installs dependencies, collects static files, runs migrations)
-- Start command: `gunicorn kitchen_management_system.wsgi:application`
-- Environment variables: AUTO-CONFIGURED
+You can now log in to the application and the Django Admin panel (`/admin/`) with these credentials.
 
-### 3.3 Deploy
-1. Click **"Deploy"**
-2. Watch the deployment progress in the logs
-3. Wait for status to change to **"Live"** (typically 5-10 minutes)
+## The Build Process (`build.sh`)
 
-## Step 4: Post-Deployment Setup
+Every time you push a change to `main`, Render executes the `build.sh` script. Here's what it does:
+1.  `set -o errexit`: Ensures the build will fail if any command fails.
+2.  `pip install -r requirements.txt`: Installs all necessary Python packages.
+3.  `python manage.py collectstatic --no-input`: Collects all static files (CSS, JS) for `whitenoise` to serve.
+4.  `python manage.py migrate`: Applies any pending database migrations.
+5.  `python manage.py setup_groups`: Ensures the 'Admin', 'Management', and 'Viewer' user groups exist in the database.
+6.  `python manage.py create_superuser`: Creates an initial superuser (if and only if one doesn't already exist).
 
-### 4.1 Access Your App
-Once deployed, your app is live at:
-```
-https://kitchen-management-system.onrender.com
-```
+## Environment Variables
 
-(The exact URL depends on the name in `render.yaml`)
+All necessary environment variables are defined in `render.yaml`.
+-   `SECRET_KEY` and `ADMIN_PASSWORD` are generated securely by Render.
+-   `DATABASE_URL` is automatically provided by the linked PostgreSQL service.
+-   `DEBUG` is correctly set to `False`.
 
-### 4.2 Admin User (Auto-Created)
-
-An admin user is automatically created during deployment with:
-- **Username**: `admin`
-- **Email**: `admin@example.com`
-- **Password**: Auto-generated and secure (shown in Render environment variables)
-
-To view the auto-generated password:
-1. Go to your web service on Render
-2. Click **"Environment"** tab
-3. Look for the `ADMIN_PASSWORD` variable
-4. Copy the auto-generated value
-
-### 4.3 Access Django Admin
-1. Navigate to: `https://kitchen-management-system.onrender.com/admin/`
-2. Log in with:
-   - Username: `admin`
-   - Password: (the auto-generated `ADMIN_PASSWORD` from environment variables)
-3. Manage data through the admin panel
-
-### 4.4 Change Admin Credentials (Optional)
-
-If you want different username/email/password:
-1. Go to your web service on Render
-2. Click **"Environment"** tab
-3. Edit:
-   - `ADMIN_USERNAME` - Change the username
-   - `ADMIN_EMAIL` - Change the email
-   - `ADMIN_PASSWORD` - Change the password (or let Render generate a new one)
-4. Click **"Save"** to redeploy
-5. The new admin user will be created on next deployment (only if none exists)
-
-## Step 5: Environment Variables (If Needed)
-
-The `render.yaml` automatically sets:
-- `DEBUG = False` (production mode)
-- `SECRET_KEY` - Auto-generated by Render (secure)
-- `ALLOWED_HOSTS` - Set to your Render domain
-- `DATABASE_URL` - Auto-set to the PostgreSQL database
-- `ADMIN_USERNAME` - Default: `admin` (set during build)
-- `ADMIN_EMAIL` - Default: `admin@example.com` (set during build)
-- `ADMIN_PASSWORD` - Auto-generated by Render (secure)
-
-If you need to add or modify environment variables:
-
-1. Go to the web service settings on Render
-2. Click **"Environment"**
-3. Add/edit variables as needed
-4. Click **"Save"** (triggers auto-redeploy)
-
-## Step 6: Database Management
-
-### View Database Credentials
-1. Go to your PostgreSQL database on Render
-2. Click **"Info"** tab
-3. See connection string and credentials
-
-### Migrate Data (if switching from Supabase)
-The `build.sh` automatically runs migrations on each deploy. If you need to manually migrate:
-
-1. Open Render Shell (on web service)
-2. Run: `python manage.py migrate`
-
-### Backup Your Database
-Render free tier databases are not automatically backed up. To backup:
-
-1. Use `pg_dump` from Render Shell:
-   ```bash
-   pg_dump $DATABASE_URL > backup.sql
-   ```
+If you need to change a variable (like `ADMIN_USERNAME`), you can do so in the **Environment** tab of your web service in Render. Changing a variable will automatically trigger a new deployment.
 
 ## Troubleshooting
 
-### Issue: Deployment Fails
-**Check the logs:**
-1. Go to web service page
-2. Click **"Logs"** tab
-3. Look for error messages
-4. Common issues:
-   - Missing environment variables → Add in settings
-   - Database migration errors → Check `build.sh` permissions
-   - Import errors → Verify all dependencies in `requirements.txt`
+### Deployment Fails
+-   **Check the Logs**: The first place to look is the **Logs** tab for your web service in Render. Scroll through the build and deploy logs to find the specific error message.
+-   **Common Causes**:
+    -   A syntax error in your Python code.
+    -   A missing dependency in `requirements.txt`.
+    -   A failing database migration.
 
-### Issue: Static Files Not Serving
-**Solution:** WhiteNoise should handle this automatically, but verify:
-1. `build.sh` ran successfully (check logs)
-2. `STATIC_ROOT` is set in settings.py
-3. Re-deploy to trigger static file collection:
-   - Make a commit and push to main
-   - Render auto-deploys
+### Static Files (CSS/JS) Not Loading
+-   This is almost always a `collectstatic` issue. Check the build logs to ensure the `python manage.py collectstatic` command completed successfully.
+-   Ensure `whitenoise` is in your `requirements.txt` and configured in `settings.py`.
 
-### Issue: Can't Login / Admin Not Working
-**Solution:**
-1. Verify admin credentials:
-   - Go to web service on Render
-   - Click **"Environment"** tab
-   - Check `ADMIN_USERNAME` and `ADMIN_PASSWORD` values
-   - Copy the exact password (no spaces)
-2. If admin user doesn't exist:
-   - Update `ADMIN_PASSWORD` environment variable (or let Render generate a new one)
-   - Click **"Save"** to trigger redeploy
-   - After deployment completes, the admin user will be created automatically
-3. If you need to change credentials:
-   - Edit `ADMIN_USERNAME`, `ADMIN_EMAIL`, `ADMIN_PASSWORD` in Environment
-   - Click **"Save"** and redeploy
-   - Note: Admin user only gets created once; to change it, manually delete the old user via database
+### "DisallowedHost" Error
+-   This means a request is coming from a URL not in your `ALLOWED_HOSTS` setting.
+-   In `render.yaml`, `ALLOWED_HOSTS` is set to `.onrender.com`, which covers all subdomains. If you add a custom domain, you must add it to the `ALLOWED_HOSTS` environment variable in Render. For example: `kitchen.yourdomain.com,.onrender.com`.
 
-### Issue: Database Connection Error
-**Check:**
-1. DATABASE_URL is set (verify in Environment settings)
-2. Database still exists (check PostgreSQL page)
-3. Test connection in Render Shell:
-   ```bash
-   python manage.py dbshell
-   ```
-
-## Continuous Deployment
-
-After initial setup, deployment is automatic:
-
-1. Make changes locally
-2. Commit and push to `main` branch:
-   ```bash
-   git add .
-   git commit -m "Your message"
-   git push origin main
-   ```
-3. Render automatically:
-   - Pulls latest code
-   - Runs `build.sh`
-   - Restarts the service
-
-**Note:** Avoid pushing secrets or `.env` files. Render won't use them anyway since environment variables are configured in the dashboard.
-
-## Monitoring & Logs
-
-### View Real-Time Logs
-1. Go to web service page
-2. Click **"Logs"** tab
-3. See real-time application output
-
-### Check Service Health
-1. Go to web service page
-2. Click **"Info"** tab
-3. See:
-   - Current status (Live/Suspended/Failure)
-   - Last deploy time
-   - Resource usage
-
-### Restart Service
-If needed, click **"Restart"** on the web service page.
-
-## Switching Back to Development
-
-To temporarily disable production features:
-
-1. Set `DEBUG=True` in Environment variables
-2. Set `ALLOWED_HOSTS=*` in Environment variables
-3. Click **"Save"** to redeploy
-
-**Never do this on production!** Only for testing.
-
-## Next Steps
-
-1. Set up a custom domain (optional):
-   - Go to web service settings → Custom Domain
-   - Add your domain (e.g., kitchen.yourcompany.com)
-
-2. Set up alerts (optional):
-   - Account Settings → Notifications
-   - Get alerts for deployment failures, etc.
-
-3. Monitor costs:
-   - Free tier is zero cost with limitations
-   - See pricing page for paid tiers if needed
-
-## Support
-
-For Render-specific issues:
-- Render Docs: https://render.com/docs
-- Django + Render guide: https://render.com/docs/deploy-django
-- Support: support@render.com
-
-For application issues:
-- Check Django logs in Render Shell
-- Review application code
-- Test locally first before deploying
+### Can't Log In / Admin User Not Found
+-   Verify that the initial build completed successfully. The `create_superuser` command only runs at the end of a successful build.
+-   Double-check that you are using the correct auto-generated password from the **Environment** tab in Render.
+-   If a superuser was created previously and you have since changed the `ADMIN_` environment variables, a *new* user will not be created. The script only runs if **no superusers exist**. You would need to manage users from the Django admin panel or connect to the database shell to make manual changes.
