@@ -1,139 +1,118 @@
-# Project Settings - CLAUDE.md
+# CLAUDE.md
 
-## Purpose
+This file provides context and instructions for Claude when working on the "Cebu Best Value Trading" Kitchen Management System.
 
-This directory contains Django project configuration and settings.
+## Project Overview
 
-## Structure
+**Name:** Cebu Best Value Trading Kitchen Management System
+**Purpose:** A specialized kitchen management and purchase order tracking system for a food business.
+**Core Philosophy:** **SLEEK AND SIMPLE.** The user's vision is paramount. Avoid feature creep, over-engineering, or unsolicited "AI ideas." Focus on fast data entry, mobile-friendliness, and a clean, minimalist design.
 
-```
-kitchen_management_system/
-├── __init__.py
-├── asgi.py              # ASGI configuration for async support
-├── settings.py          # Main Django settings
-├── urls.py              # Root URL configuration
-└── wsgi.py              # WSGI configuration for deployment
-```
+## Core Mandates
 
-## Settings Configuration
+1.  **Strict Adherence to Vision:** Do not suggest new features unless explicitly asked. Implement exactly what is requested.
+2.  **No Correlation (Yet):** Raw material inputs and production outputs are tracked separately. Do not attempt to build automated conversion logic between them.
+3.  **Authentication:** No public signup. Admins create accounts.
+4.  **User Roles:**
+    *   **Admin:** Full access (User management + Operations). Can be a superuser.
+    *   **Management:** Operations only (Raw materials, Production, Orders).
+    *   **Viewer:** (Future use) Intended for read-only access. The group is created but not currently used in any views.
 
-### Database
-- Uses PostgreSQL via Supabase connection pooler
-- Connection details loaded from environment variables
-- Configured for IPv4 connectivity
+## Tech Stack
 
-### Security Settings
-- `SECRET_KEY`: Django secret key (from env variable)
-- `DEBUG`: Should be False in production
-- CSRF protection enabled
-- Session security configured
+*   **Language:** Python 3.12+
+*   **Framework:** Django 6.0
+*   **Frontend:** Tailwind CSS
+*   **Database:** PostgreSQL (primary deployment via Render, can connect to Supabase for local dev)
+*   **Hosting:** **Render**
+*   **Dependencies:** `django-axes` (security), `gunicorn` (server), `whitenoise` (static files), `dj-database-url` (db connection), `reportlab` (PDF), `openpyxl` (Excel).
 
-### Installed Apps
-- Django built-in apps (admin, auth, contenttypes, sessions, messages, staticfiles)
-- `core` - Main application
-- `accounts` - Authentication app (to be added)
+## Project Structure
 
-### Middleware
-- Standard Django middleware stack
-- CSRF, sessions, authentication, messages
-
-### Database Configuration
-```python
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': os.getenv('SUPABASE_USER', 'postgres'),
-        'PASSWORD': os.getenv('SUPABASE_PROJECT_PASSWORD'),
-        'HOST': os.getenv('SUPABASE_HOST', 'localhost'),
-        'PORT': os.getenv('SUPABASE_PORT', '5432'),
-        'OPTIONS': {
-            'connect_timeout': 10,
-        },
-    }
-}
+```text
+/
+├── accounts/                  # User management, login/logout, roles
+├── core/                      # Main business logic (models, views, forms)
+│   ├── services/              # Business logic services (e.g., export.py)
+│   └── management/commands/   # Custom Django commands (test_data, create_superuser)
+├── kitchen_management_system/ # Django project configuration (settings.py, urls.py)
+├── plans/                     # Implementation documentation & roadmap
+├── build.sh                   # Deployment build script for Render
+├── render.yaml                # Infrastructure-as-code for Render
+├── manage.py                  # Django CLI entry point
+├── .env                       # Environment variables (local development)
+└── requirements.txt           # Python dependencies
 ```
 
-### Static Files
-- `STATIC_URL`: '/static/'
-- Configure `STATIC_ROOT` for production
+## Key Workflows & Commands
 
-### Templates
-- Django template engine
-- Template directories to be configured per app
+### 1. Development Server (Local)
+Requires a `.env` file configured for a database (e.g., Supabase).
+```bash
+# Set up the database with initial groups and a default admin
+python manage.py setup_auth
 
-## URL Configuration
+# Run the server
+python manage.py runserver
+```
 
-Root URL patterns in `urls.py`:
-- `/admin/` - Django admin interface
-- `/` - Includes core app URLs
-- `/accounts/` - Authentication URLs (to be added)
-
-## Production Settings
-
-For Vercel deployment, update:
-- `ALLOWED_HOSTS` - Add production domain
-- `DEBUG = False`
-- `SECURE_SSL_REDIRECT = True`
-- `SESSION_COOKIE_SECURE = True`
-- `CSRF_COOKIE_SECURE = True`
-- Configure static file serving
-
-## Environment Variables
-
-Required variables:
-- `SUPABASE_PROJECT_PASSWORD`
-- `SUPABASE_HOST`
-- `SUPABASE_PORT`
-- `SUPABASE_USER`
-- `SECRET_KEY`
-- `DEBUG`
-
-## Security Considerations
-
-1. Never commit secrets or passwords
-2. Use strong SECRET_KEY in production
-3. Enable HTTPS in production
-4. Configure CORS properly
-5. Set secure cookie flags
-6. Use environment variables for all sensitive data
-
-## Development vs Production
-
-### Development
-- `DEBUG = True`
-- Detailed error pages
-- Django development server
-- SQLite can be used for local testing
-- Relaxed CORS settings
-
-### Production
-- `DEBUG = False`
-- Generic error pages
-- WSGI server (Gunicorn/uWSGI)
-- PostgreSQL (Supabase)
-- Strict CORS settings
-- HTTPS required
-- Secure cookies
-
-## Database Migrations
-
-Always run migrations after settings changes:
+### 2. Database Migrations
 ```bash
 python manage.py makemigrations
 python manage.py migrate
 ```
 
-## Custom Settings (Future)
+### 3. Testing & Sample Data
+A custom management command is available for comprehensive testing.
+```bash
+# Run all CRUD tests
+python manage.py test_data_operations
 
-Consider splitting settings into:
-- `base.py` - Common settings
-- `development.py` - Dev-specific
-- `production.py` - Prod-specific
+# Populate the database with realistic sample data
+python manage.py test_data_operations --populate
 
-## Logging Configuration
+# Clear all sample data
+python manage.py test_data_operations --clear-samples
+```
 
-Add logging configuration for production:
-- Error logs
-- Access logs
-- Database query logs (development only)
+## Database Schema (`core/models.py`)
+
+All models use UUIDs for primary keys.
+
+*   **`Customer`**: Basic contact info.
+*   **`RawMaterial`**: Ingredients/Packaging (Name, Category, Unit).
+*   **`DailyConsumption`**: Tracks usage of raw materials per day.
+*   **`ProductType`**: Definition of sellable items (Food packs, Platters).
+*   **`DailyProduction`**: Tracks output of products per day.
+*   **`PurchaseOrder`**: Orders linked to a Customer. Supports staggered fulfillment.
+*   **`PurchaseOrderItem`**: Line items in an order.
+*   **`PurchaseOrderUpdate`**: Log of updates/partial deliveries for an order.
+
+## Deployment (Render)
+
+*   **Platform:** Render
+*   **Configuration:** `render.yaml` defines the web service and database.
+*   **Build Process:** `build.sh` script installs dependencies, collects static files, runs migrations, and creates user groups and a superuser.
+*   **Continuous Deployment:** Pushing to the `main` branch on GitHub automatically triggers a new deployment on Render.
+*   **Superuser Creation:** On first deploy, a superuser is created using credentials from environment variables set in `render.yaml` (`ADMIN_USERNAME`, `ADMIN_PASSWORD`, etc.).
+
+## Current Status (v0.3.0)
+
+*   **Completed:**
+    *   Auth System (Admin/Management roles).
+    *   Database Schema & Migrations for all 8 models.
+    *   Full CRUD views for all models.
+    *   Dark Mode UI with Tailwind CSS.
+    *   Data Export to Excel & PDF for all modules.
+    *   Robust `test_data_operations` command for testing and sample data.
+    *   Deployment configuration for **Render**.
+*   **Pending/In-Progress:**
+    *   Refinement of UI for specific trackers (Plan 04 & 05).
+
+## Interaction Guidelines for Claude
+
+*   **Context Awareness:** Always check `core/models.py` and `core/views.py` before suggesting changes to business logic.
+*   **Style:** Match the existing Tailwind CSS usage and Django patterns.
+*   **Deployment:** Be aware that the project is deployed on **Render**. Changes to `render.yaml` or `build.sh` will affect deployment.
+*   **Safety:** Never output the contents of `.env`.
+*   **Conciseness:** Be brief. The user values efficiency and clarity.

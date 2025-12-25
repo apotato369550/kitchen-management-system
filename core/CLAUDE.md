@@ -1,140 +1,118 @@
-# Core App - CLAUDE.md
+# CLAUDE.md
 
-## Purpose
+This file provides context and instructions for Claude when working on the "Cebu Best Value Trading" Kitchen Management System.
 
-The `core` app is the main application containing all business logic for the kitchen management system.
+## Project Overview
 
-## Structure
+**Name:** Cebu Best Value Trading Kitchen Management System
+**Purpose:** A specialized kitchen management and purchase order tracking system for a food business.
+**Core Philosophy:** **SLEEK AND SIMPLE.** The user's vision is paramount. Avoid feature creep, over-engineering, or unsolicited "AI ideas." Focus on fast data entry, mobile-friendliness, and a clean, minimalist design.
 
+## Core Mandates
+
+1.  **Strict Adherence to Vision:** Do not suggest new features unless explicitly asked. Implement exactly what is requested.
+2.  **No Correlation (Yet):** Raw material inputs and production outputs are tracked separately. Do not attempt to build automated conversion logic between them.
+3.  **Authentication:** No public signup. Admins create accounts.
+4.  **User Roles:**
+    *   **Admin:** Full access (User management + Operations). Can be a superuser.
+    *   **Management:** Operations only (Raw materials, Production, Orders).
+    *   **Viewer:** (Future use) Intended for read-only access. The group is created but not currently used in any views.
+
+## Tech Stack
+
+*   **Language:** Python 3.12+
+*   **Framework:** Django 6.0
+*   **Frontend:** Tailwind CSS
+*   **Database:** PostgreSQL (primary deployment via Render, can connect to Supabase for local dev)
+*   **Hosting:** **Render**
+*   **Dependencies:** `django-axes` (security), `gunicorn` (server), `whitenoise` (static files), `dj-database-url` (db connection), `reportlab` (PDF), `openpyxl` (Excel).
+
+## Project Structure
+
+```text
+/
+├── accounts/                  # User management, login/logout, roles
+├── core/                      # Main business logic (models, views, forms)
+│   ├── services/              # Business logic services (e.g., export.py)
+│   └── management/commands/   # Custom Django commands (test_data, create_superuser)
+├── kitchen_management_system/ # Django project configuration (settings.py, urls.py)
+├── plans/                     # Implementation documentation & roadmap
+├── build.sh                   # Deployment build script for Render
+├── render.yaml                # Infrastructure-as-code for Render
+├── manage.py                  # Django CLI entry point
+├── .env                       # Environment variables (local development)
+└── requirements.txt           # Python dependencies
 ```
-core/
-├── migrations/           # Database migrations
-├── templates/
-│   └── core/            # HTML templates (to be created)
-├── static/
-│   └── core/            # CSS, JS, images (to be created)
-├── __init__.py
-├── admin.py             # Django admin configuration
-├── apps.py              # App configuration
-├── models.py            # Database models (8 models)
-├── views.py             # View functions (Hello World currently)
-├── urls.py              # URL routing
-├── forms.py             # Form classes (to be created)
-└── tests.py             # Unit tests (to be written)
+
+## Key Workflows & Commands
+
+### 1. Development Server (Local)
+Requires a `.env` file configured for a database (e.g., Supabase).
+```bash
+# Set up the database with initial groups and a default admin
+python manage.py setup_auth
+
+# Run the server
+python manage.py runserver
 ```
 
-## Models
+### 2. Database Migrations
+```bash
+python manage.py makemigrations
+python manage.py migrate
+```
 
-### Customer
-- Stores customer information (name, contact info)
-- Related to PurchaseOrder
+### 3. Testing & Sample Data
+A custom management command is available for comprehensive testing.
+```bash
+# Run all CRUD tests
+python manage.py test_data_operations
 
-### RawMaterial
-- Library of raw materials with categories
-- Categories: meat, vegetables, oil, miscellaneous
-- Each has a unit of measurement (grams, pieces, heads, etc.)
+# Populate the database with realistic sample data
+python manage.py test_data_operations --populate
 
-### DailyConsumption
-- Daily tracking of raw materials consumed
-- Foreign key to RawMaterial
-- Records date, quantity, and timestamp
+# Clear all sample data
+python manage.py test_data_operations --clear-samples
+```
 
-### ProductType
-- Library of product types (Food Pack, Platter, Bilao, etc.)
-- Related to DailyProduction and PurchaseOrderItem
+## Database Schema (`core/models.py`)
 
-### DailyProduction
-- Daily tracking of production output
-- Foreign key to ProductType
-- Records date, quantity, contents description
+All models use UUIDs for primary keys.
 
-### PurchaseOrder
-- Customer orders with status tracking
-- Status: pending, in_progress, completed, cancelled
-- Foreign key to Customer
-- Related to PurchaseOrderItem and PurchaseOrderUpdate
+*   **`Customer`**: Basic contact info.
+*   **`RawMaterial`**: Ingredients/Packaging (Name, Category, Unit).
+*   **`DailyConsumption`**: Tracks usage of raw materials per day.
+*   **`ProductType`**: Definition of sellable items (Food packs, Platters).
+*   **`DailyProduction`**: Tracks output of products per day.
+*   **`PurchaseOrder`**: Orders linked to a Customer. Supports staggered fulfillment.
+*   **`PurchaseOrderItem`**: Line items in an order.
+*   **`PurchaseOrderUpdate`**: Log of updates/partial deliveries for an order.
 
-### PurchaseOrderItem
-- Line items for purchase orders
-- Tracks quantity ordered vs. quantity fulfilled
-- Foreign keys to PurchaseOrder and ProductType
+## Deployment (Render)
 
-### PurchaseOrderUpdate
-- Comment-style update history for orders
-- Tracks staggered deliveries
-- Foreign key to PurchaseOrder
-- Includes note and optional quantity delivered
+*   **Platform:** Render
+*   **Configuration:** `render.yaml` defines the web service and database.
+*   **Build Process:** `build.sh` script installs dependencies, collects static files, runs migrations, and creates user groups and a superuser.
+*   **Continuous Deployment:** Pushing to the `main` branch on GitHub automatically triggers a new deployment on Render.
+*   **Superuser Creation:** On first deploy, a superuser is created using credentials from environment variables set in `render.yaml` (`ADMIN_USERNAME`, `ADMIN_PASSWORD`, etc.).
 
-## Views
+## Current Status (v0.3.0)
 
-### Current
-- `index`: Simple "Hello World" response
+*   **Completed:**
+    *   Auth System (Admin/Management roles).
+    *   Database Schema & Migrations for all 8 models.
+    *   Full CRUD views for all models.
+    *   Dark Mode UI with Tailwind CSS.
+    *   Data Export to Excel & PDF for all modules.
+    *   Robust `test_data_operations` command for testing and sample data.
+    *   Deployment configuration for **Render**.
+*   **Pending/In-Progress:**
+    *   Refinement of UI for specific trackers (Plan 04 & 05).
 
-### Planned
-See `plans/04-raw-materials-production-tracker.md` and `plans/05-purchase-order-tracker.md` for detailed view implementations.
+## Interaction Guidelines for Claude
 
-## URL Routing
-
-Currently maps root `/` to index view.
-
-Planned structure includes:
-- Dashboard: `/`
-- Raw materials: `/raw-materials/`
-- Consumption: `/consumption/`
-- Product types: `/product-types/`
-- Production: `/production/`
-- Customers: `/customers/`
-- Orders: `/orders/`
-
-## Templates
-
-To be created with Tailwind CSS styling:
-- Base template with navigation
-- Dashboard/homepage
-- CRUD templates for each model
-- List views with filtering
-- Form views with validation
-
-## Forms
-
-To be created using Django forms:
-- RawMaterialForm
-- DailyConsumptionForm
-- ProductTypeForm
-- DailyProductionForm
-- CustomerForm
-- PurchaseOrderForm (with inline formset for items)
-- PurchaseOrderUpdateForm
-
-## Admin Configuration
-
-Register all models in admin.py for quick data management during development.
-
-## Testing
-
-Write tests for:
-- Model methods and properties
-- Form validation
-- View permissions
-- Data integrity
-- Edge cases
-
-## Key Design Decisions
-
-1. **No Conversion Logic**: Raw materials and production are tracked independently with no automated relationship.
-
-2. **UUID Primary Keys**: All models use UUID for Supabase compatibility.
-
-3. **Soft Relationships**: No strict foreign key to track which raw materials went into which production output.
-
-4. **Flexible Measurements**: Raw materials use string field for units to allow any measurement type.
-
-5. **Status Enum**: Purchase orders use predefined status choices for consistency.
-
-## Future Enhancements
-
-- Data export functionality
-- Reporting and analytics
-- Bulk data entry
-- Mobile-optimized views
-- Print-friendly layouts
+*   **Context Awareness:** Always check `core/models.py` and `core/views.py` before suggesting changes to business logic.
+*   **Style:** Match the existing Tailwind CSS usage and Django patterns.
+*   **Deployment:** Be aware that the project is deployed on **Render**. Changes to `render.yaml` or `build.sh` will affect deployment.
+*   **Safety:** Never output the contents of `.env`.
+*   **Conciseness:** Be brief. The user values efficiency and clarity.
