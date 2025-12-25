@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="mb-8">
-    <a href="{% url 'order_list' %}" class="text-sm text-blue-600 hover:text-blue-900 mb-4 inline-block">
+    <a href="{% url 'purchase_order_list' %}" class="text-sm text-blue-600 hover:text-blue-900 mb-4 inline-block">
         &larr; Back to Orders
     </a>
 </div>
@@ -42,11 +42,11 @@
         </div>
         <div class="flex gap-3">
             {% if order.status != 'cancelled' and order.status != 'completed' %}
-            <a href="{% url 'order_add_update' order.pk %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
+            <a href="{% url 'purchase_order_add_update' order.pk %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
                 Add Update
             </a>
             {% endif %}
-            <a href="{% url 'order_change_status' order.pk %}" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+            <a href="{% url 'purchase_order_change_status' order.pk %}" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                 Change Status
             </a>
         </div>
@@ -119,13 +119,7 @@
                         </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        {% if order.status != 'cancelled' and order.status != 'completed' and not item.is_fulfilled %}
-                        <a href="{% url 'order_edit_item' item.pk %}" class="text-blue-600 hover:text-blue-900">
-                            Edit Qty
-                        </a>
-                        {% else %}
                         <span class="text-gray-400">—</span>
-                        {% endif %}
                     </td>
                 </tr>
                 {% endfor %}
