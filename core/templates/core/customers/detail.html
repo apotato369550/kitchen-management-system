@@ -41,7 +41,7 @@
 <div class="bg-white shadow rounded-lg">
     <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
         <h2 class="text-xl font-semibold text-gray-900">Purchase Orders</h2>
-        <a href="{% url 'order_create' %}?customer={{ customer.pk }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
+        <a href="{% url 'purchase_order_create' %}?customer={{ customer.pk }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
             Create New Order
         </a>
     </div>
@@ -53,7 +53,7 @@
             <div class="flex justify-between items-start">
                 <div class="flex-1">
                     <div class="flex items-center gap-3 mb-2">
-                        <a href="{% url 'order_detail' order.pk %}" class="text-lg font-medium text-blue-600 hover:text-blue-900">
+                        <a href="{% url 'purchase_order_detail' order.pk %}" class="text-lg font-medium text-blue-600 hover:text-blue-900">
                             {{ order.po_number }}
                         </a>
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
@@ -88,7 +88,7 @@
         <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
         </svg>
-        <p class="mt-4 text-gray-600">No orders yet. <a href="{% url 'order_create' %}?customer={{ customer.pk }}" class="text-blue-600 hover:text-blue-900">Create first order</a>.</p>
+        <p class="mt-4 text-gray-600">No orders yet. <a href="{% url 'purchase_order_create' %}?customer={{ customer.pk }}" class="text-blue-600 hover:text-blue-900">Create first order</a>.</p>
     </div>
     {% endif %}
 </div>

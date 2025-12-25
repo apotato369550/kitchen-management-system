@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="mb-8">
-    <a href="{% url 'order_detail' order.pk %}" class="text-sm text-blue-600 hover:text-blue-900 mb-4 inline-block">
+    <a href="{% url 'purchase_order_detail' order.pk %}" class="text-sm text-blue-600 hover:text-blue-900 mb-4 inline-block">
         &larr; Back to {{ order.po_number }}
     </a>
 </div>
@@ -82,7 +82,7 @@
                     <button type="submit" class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
                         Add Update
                     </button>
-                    <a href="{% url 'order_detail' order.pk %}" class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    <a href="{% url 'purchase_order_detail' order.pk %}" class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                         Cancel
                     </a>
                 </div>

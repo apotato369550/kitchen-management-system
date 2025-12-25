@@ -8,7 +8,7 @@
         <h1 class="text-3xl font-bold text-gray-900">Purchase Orders</h1>
         <p class="mt-2 text-sm text-gray-600">Manage customer orders and fulfillment</p>
     </div>
-    <a href="{% url 'order_create' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
+    <a href="{% url 'purchase_order_create' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
         Create Order
     </a>
 </div>
@@ -52,7 +52,7 @@
                 Apply Filters
             </button>
             {% if selected_status or selected_customer or date_from or date_to %}
-            <a href="{% url 'order_list' %}" class="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+            <a href="{% url 'purchase_order_list' %}" class="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                 Clear Filters
             </a>
             {% endif %}
@@ -69,7 +69,7 @@
             <div class="flex justify-between items-start">
                 <div class="flex-1">
                     <div class="flex items-center gap-3 mb-2">
-                        <a href="{% url 'order_detail' order.pk %}" class="text-xl font-semibold text-blue-600 hover:text-blue-900">
+                        <a href="{% url 'purchase_order_detail' order.pk %}" class="text-xl font-semibold text-blue-600 hover:text-blue-900">
                             {{ order.po_number }}
                         </a>
                         <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
@@ -110,11 +110,11 @@
                 </div>
 
                 <div class="flex flex-col gap-2 ml-4">
-                    <a href="{% url 'order_detail' order.pk %}" class="inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    <a href="{% url 'purchase_order_detail' order.pk %}" class="inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                         View Details
                     </a>
                     {% if order.status != 'cancelled' and order.status != 'completed' %}
-                    <a href="{% url 'order_add_update' order.pk %}" class="inline-flex items-center px-3 py-1.5 border border-blue-300 text-xs font-medium rounded-md text-blue-700 bg-white hover:bg-blue-50">
+                    <a href="{% url 'purchase_order_add_update' order.pk %}" class="inline-flex items-center px-3 py-1.5 border border-blue-300 text-xs font-medium rounded-md text-blue-700 bg-white hover:bg-blue-50">
                         Add Update
                     </a>
                     {% endif %}
@@ -129,7 +129,7 @@
     <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
     </svg>
-    <p class="mt-4 text-gray-600">No orders found. <a href="{% url 'order_create' %}" class="text-blue-600 hover:text-blue-900">Create one now</a>.</p>
+    <p class="mt-4 text-gray-600">No orders found. <a href="{% url 'purchase_order_create' %}" class="text-blue-600 hover:text-blue-900">Create one now</a>.</p>
 </div>
 {% endif %}
 {% endblock %}
