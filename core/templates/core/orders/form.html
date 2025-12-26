@@ -3,13 +3,15 @@
 {% block title %}Create Purchase Order - Kitchen Management System{% endblock %}
 
 {% block content %}
-<div class="mb-8">
-    <h1 class="text-3xl font-bold text-gray-900">Create Purchase Order</h1>
+<div class="page-header">
+    <div class="page-title-group">
+        <h1>Create Purchase Order</h1>
+    </div>
 </div>
 
-<div class="max-w-4xl">
-    <div class="bg-white shadow rounded-lg">
-        <div class="px-4 py-5 sm:p-6">
+<div class="content-container">
+    <div class="card">
+        <div class="card-body" style="padding: 24px;">
             <form method="post" class="space-y-6">
                 {% csrf_token %}
 
@@ -123,13 +125,9 @@
                     </div>
                 </div>
 
-                <div class="flex gap-3 border-t border-gray-200 pt-6">
-                    <button type="submit" class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
-                        Create Order
-                    </button>
-                    <a href="{% url 'order_list' %}" class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                        Cancel
-                    </a>
+                <div class="form-actions sticky-bottom-mobile" style="border-top: 1px solid var(--border-color); padding-top: 24px; margin-top: 24px;">
+                    <button type="submit" class="btn btn-primary btn-lg">Create Order</button>
+                    <a href="{% url 'purchase_order_list' %}" class="btn btn-secondary btn-lg">Cancel</a>
                 </div>
             </form>
         </div>
