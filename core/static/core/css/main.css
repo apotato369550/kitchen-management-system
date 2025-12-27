@@ -61,7 +61,7 @@
 }
 
 html {
-  font-size: 16px;
+  font-size: 17px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -216,15 +216,15 @@ nav.desktop-nav {
 }
 
 .nav-logo-icon {
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
-  border-radius: 8px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 20px;
+  font-size: 24px;
   box-shadow: var(--shadow-md);
 }
 
@@ -233,13 +233,16 @@ nav.desktop-nav {
 }
 
 .nav-logo-text h1 {
-  font-size: 14px;
+  font-size: 17px;
   margin: 0;
+  font-weight: 700;
+  line-height: 1.2;
 }
 
 .nav-logo-text p {
   font-size: 11px;
   margin: 0;
+  color: var(--text-secondary);
 }
 
 @media (min-width: 769px) {
@@ -754,10 +757,11 @@ nav.mobile-nav {
 
 .form-label {
   display: block;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-primary);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--gray-900);
   margin-bottom: 8px;
+  letter-spacing: -0.01em;
 }
 
 .form-input,
@@ -887,8 +891,8 @@ tbody tr:last-child {
 
 td {
   padding: 16px;
-  font-size: 14px;
-  color: var(--text-secondary);
+  font-size: 15px;
+  color: var(--text-primary);
 }
 
 td a {
