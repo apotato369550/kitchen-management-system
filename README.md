@@ -9,20 +9,23 @@ A Django-based kitchen management and purchase order tracking system for food bu
 - **Production Tracker**: Daily tracking of production output (food packs, platters, bilao)
 - **Purchase Order Management**: Create and manage customer orders with staggered fulfillment tracking
 - **Data Export**: Export all data to Excel and PDF formats for reporting and backup
-- **Dark Mode**: Built-in dark mode support for comfortable viewing
+- **Professional UI**: Light theme with enhanced typography, responsive cards/tables, and touch-friendly buttons for kitchen environment
+- **Empty State Warnings**: Clear notifications on forms when prerequisite data doesn't exist
+- **Recent Activity Sidebars**: Quick access to top 10 recently added records on create forms
+- **Production History Grouping**: Records grouped by date with visual day headers for easier scanning
 
 ## Tech Stack
 
 - **Backend**: Django 6.0
 - **Frontend**: Tailwind CSS
-- **Database**: PostgreSQL (Supabase)
+- **Database**: PostgreSQL (Render)
 - **Hosting**: Vercel
 - **Python**: 3.12+
 
 ## Prerequisites
 
 - Python 3.12 or higher
-- PostgreSQL (or Supabase account)
+- PostgreSQL database (via Render or another PostgreSQL provider)
 - Git
 
 ## Development Setup
@@ -47,11 +50,11 @@ pip install -r requirements.txt
 ### 4. Configure Environment Variables
 Create a `.env` file in the root directory:
 ```env
-# Supabase Database Configuration
+# Render PostgreSQL Database Configuration
 SUPABASE_PROJECT_PASSWORD=your_password_here
-SUPABASE_HOST=aws-1-ap-south-1.pooler.supabase.com
-SUPABASE_PORT=6543
-SUPABASE_USER=postgres.your_project_ref
+SUPABASE_HOST=your_render_postgres_host
+SUPABASE_PORT=5432
+SUPABASE_USER=your_db_user
 
 # Django Secret Key (generate a new one for production)
 SECRET_KEY=your_secret_key_here
@@ -153,11 +156,11 @@ Add the app to `INSTALLED_APPS` in `settings.py`.
 
 ### Environment Variables for Production
 Set these in your Vercel dashboard:
-- `SUPABASE_PROJECT_PASSWORD`
-- `SUPABASE_HOST`
-- `SUPABASE_PORT`
-- `SUPABASE_USER`
-- `SECRET_KEY`
+- `SUPABASE_PROJECT_PASSWORD` (Render database password)
+- `SUPABASE_HOST` (Render PostgreSQL host)
+- `SUPABASE_PORT` (Usually 5432 for Render)
+- `SUPABASE_USER` (Render database user)
+- `SECRET_KEY` (Strong, unique key for production)
 - `DEBUG=False`
 
 ### Security Checklist for Production
@@ -269,9 +272,9 @@ Available modules: `raw_materials`, `consumption`, `product_types`, `production`
 ## Troubleshooting
 
 ### Database Connection Issues
-- Verify `.env` file contains correct Supabase credentials
-- Check that Supabase project is active
-- Ensure connection pooler is used (IPv4 support)
+- Verify `.env` file contains correct Render PostgreSQL credentials
+- Check that Render PostgreSQL database is active and running
+- Ensure port 5432 is accessible from your environment
 
 ### Migration Issues
 - Delete `core/migrations/` except `__init__.py`

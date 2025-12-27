@@ -15,19 +15,19 @@ Kitchen management and purchase order system for a food business. Three main fea
 ## Tech Stack
 
 - **Backend**: Django 6.0
-- **Frontend**: Tailwind CSS
-- **Database**: PostgreSQL (Supabase via connection pooler)
+- **Frontend**: Tailwind CSS with light theme
+- **Database**: PostgreSQL (Render)
 - **Authentication**: Django's built-in auth system
 - **Hosting**: Vercel
 - **Python**: 3.12+
 
 ## Database Connection
 
-Uses Supabase PostgreSQL via connection pooler (IPv4):
-- Host: `aws-1-ap-south-1.pooler.supabase.com`
-- Port: `6543`
-- User: `postgres.obfyvlyycxvtmbfnwbuw`
-- Password: Stored in `.env` file
+Uses Render PostgreSQL:
+- Host: Configured via `SUPABASE_HOST` environment variable
+- Port: `5432`
+- User: Configured via `SUPABASE_USER` environment variable
+- Password: Stored in `.env` file as `SUPABASE_PROJECT_PASSWORD`
 
 ## User Roles
 
@@ -90,7 +90,7 @@ kitchen-management-system/
 
 ## Database Models (Implemented)
 
-All models use UUID primary keys for Supabase compatibility:
+All models use UUID primary keys for database compatibility:
 
 1. **Customer** - name, contact_info, created_at
 2. **RawMaterial** - name, category (enum), unit
@@ -103,13 +103,13 @@ All models use UUID primary keys for Supabase compatibility:
 
 ## Current Implementation Status
 
-### ✅ Completed (Version 0.3.0)
+### ✅ Completed (Version 0.3.1)
 - Django project initialized with Django 6.0
-- Database models (8 models) created and migrated to Supabase
+- Database models (8 models) created and migrated to Render PostgreSQL
 - Authentication system with user roles (Admin, Management) - Plan 03
 - Full CRUD operations for all models
-- Dark mode enabled by default with Tailwind CSS
-- Professional UI with responsive design
+- Professional light theme UI with Tailwind CSS (upgraded from dark mode)
+- Responsive design with touch-friendly buttons
 - 40+ view functions with proper authentication checks
 - 45+ URL endpoints with organized routing
 - **Data Export System** (Plan 07):
@@ -122,22 +122,30 @@ All models use UUID primary keys for Supabase compatibility:
   - Sample data population with `--populate` flag
   - Clear sample data with `--clear-samples` flag
   - Test-specific modules with `--test` flag
+- **UI/UX Redesign** (Plan 09):
+  - Light theme with enhanced typography (17px base, bolder labels)
+  - Larger logo with prominent "CBVT Kitchen Management System" branding
+  - User management with responsive cards/tables
+  - All list view actions converted to styled buttons
+  - Empty state warnings on create forms
+  - Recent additions sidebars (top 10 records) on create forms
+  - Production history grouped by date with visual headers
+  - "Add Another Item" button properly styled
 - Site rebranding from "KitchenHub" to "Cebu Best Value Trading"
 - Tutorial feature removed (Plan 06) for cleaner codebase
 - Dashboard with quick access cards
 - Login/logout with throttling
-- User management interface
-- Comprehensive documentation in README.md
+- User management interface with role assignment
+- Comprehensive documentation in README.md, CHANGELOG.md, CLAUDE.md, GEMINI.md
 
 ### 🚧 In Progress
 - None currently
 
 ### 📋 Planned (see plans/ directory)
-- Raw materials + production tracker UI (plan 04)
-- Purchase order tracker UI (plan 05)
 - CSV export format support
 - Scheduled automatic exports
 - Additional reporting features
+- Advanced analytics dashboard
 
 ## Development Guidelines
 
@@ -208,10 +216,10 @@ python manage.py test
 ## Environment Variables
 
 Required in `.env` file:
-- `SUPABASE_PROJECT_PASSWORD` - Database password
-- `SUPABASE_HOST` - Connection pooler host
-- `SUPABASE_PORT` - Connection pooler port (6543)
-- `SUPABASE_USER` - Database user with project ref
+- `SUPABASE_PROJECT_PASSWORD` - Render database password
+- `SUPABASE_HOST` - Render PostgreSQL host
+- `SUPABASE_PORT` - Render PostgreSQL port (5432)
+- `SUPABASE_USER` - Render database username
 - `SECRET_KEY` - Django secret key (generate new for production)
 - `DEBUG` - True for development, False for production
 

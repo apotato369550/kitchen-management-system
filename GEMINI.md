@@ -21,9 +21,9 @@ This file provides context and instructions for Gemini when working on the "Cebu
 
 *   **Language:** Python 3.12+
 *   **Framework:** Django 6.0
-*   **Frontend:** Tailwind CSS (served via Django templates)
-*   **Database:** PostgreSQL (Supabase via connection pooler)
-*   **Hosting:** Vercel (Primary), Render (Alternative build script present)
+*   **Frontend:** Tailwind CSS with light theme (served via Django templates)
+*   **Database:** PostgreSQL (Render)
+*   **Hosting:** Vercel
 *   **Dependencies:** `django-axes`, `gunicorn`, `whitenoise`, `dj-database-url`, `reportlab`, `openpyxl`.
 
 ## Project Structure
@@ -53,7 +53,7 @@ python manage.py runserver
 ```
 
 ### 2. Database Migrations
-**Important:** The project uses Supabase. Ensure `.env` is configured correctly before migrating.
+**Important:** The project uses Render PostgreSQL. Ensure `.env` is configured correctly with Render database credentials before migrating.
 ```bash
 python manage.py makemigrations
 python manage.py migrate
@@ -97,18 +97,23 @@ All models use UUIDs for primary keys.
 *   **Config:** `vercel.json` (Assumed standard Vercel Django setup)
 *   **Static Files:** Handled by `whitenoise` in production; `collectstatic` required during build.
 
-## Current Status (v0.3.0)
+## Current Status (v0.3.1)
 
 *   **Completed:**
     *   Auth System (Admin/Management).
-    *   Database Schema & Migrations.
+    *   Database Schema & Migrations (Render PostgreSQL).
     *   CRUD Views for all models.
-    *   Dark Mode UI.
+    *   Professional Light Theme UI with enhanced typography.
+    *   Responsive cards/tables and touch-friendly buttons.
+    *   Empty state warnings on prerequisite-dependent forms.
+    *   Recent additions sidebars (top 10 records) on create forms.
+    *   Production history grouped by date with visual headers.
     *   Data Export (Excel & PDF).
     *   Sample Data Generator.
 *   **Pending/In-Progress:**
-    *   Refinement of UI for specific trackers (Plan 04 & 05).
+    *   CSV export format support.
     *   Scheduled automatic exports.
+    *   Advanced analytics dashboard.
 
 ## Interaction Guidelines for Gemini
 
