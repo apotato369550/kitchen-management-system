@@ -3,84 +3,120 @@
 {% block title %}Users - Kitchen Management System{% endblock %}
 
 {% block content %}
-<div class="mb-6 flex justify-between items-center">
-    <h1 class="text-2xl font-bold text-gray-900">User Management</h1>
-    <a href="{% url 'user_create' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-        Create New User
-    </a>
+<div class="page-header">
+    <div class="page-title-group">
+        <h1>User Management</h1>
+        <p>Manage system users and permissions</p>
+    </div>
+    <div class="page-actions">
+        <a href="{% url 'user_create' %}" class="btn btn-primary">Create New User</a>
+    </div>
 </div>
 
-<div class="bg-white shadow overflow-hidden sm:rounded-lg">
-    <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-            <tr>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Username
-                </th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Name
-                </th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Email
-                </th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Role
-                </th>
-                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                </th>
-                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                </th>
-            </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
-            {% for user_obj in users %}
-            <tr>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {{ user_obj.username }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {{ user_obj.first_name }} {{ user_obj.last_name }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {{ user_obj.email|default:"-" }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {% if user_obj.groups.all.0 %}
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {% if user_obj.groups.all.0.name == 'Admin' %}bg-purple-100 text-purple-800{% else %}bg-blue-100 text-blue-800{% endif %}">
-                            {{ user_obj.groups.all.0.name }}
-                        </span>
-                    {% else %}
-                        <span class="text-gray-400">No role</span>
-                    {% endif %}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    {% if user_obj.is_active %}
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                            Active
-                        </span>
-                    {% else %}
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                            Inactive
-                        </span>
-                    {% endif %}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <a href="{% url 'user_edit' user_obj.pk %}" class="text-blue-600 hover:text-blue-900 mr-4">Edit</a>
-                    {% if user_obj != user %}
-                    <a href="{% url 'user_delete' user_obj.pk %}" class="text-red-600 hover:text-red-900">Delete</a>
-                    {% endif %}
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">
-                    No users found.
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="content-container">
+    <!-- Desktop Table -->
+    <div class="table-wrapper desktop-only">
+        <table>
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th style="text-align: right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user_obj in users %}
+                <tr>
+                    <td style="font-weight: 600; color: var(--text-primary);">{{ user_obj.username }}</td>
+                    <td>{{ user_obj.first_name }} {{ user_obj.last_name }}</td>
+                    <td>{{ user_obj.email|default:"-" }}</td>
+                    <td>
+                        {% if user_obj.groups.all.0 %}
+                            <span class="badge {% if user_obj.groups.all.0.name == 'Admin' %}badge-info{% else %}badge-pending{% endif %}">
+                                {{ user_obj.groups.all.0.name }}
+                            </span>
+                        {% else %}
+                            <span style="color: var(--text-secondary); font-size: 13px;">No role</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if user_obj.is_active %}
+                            <span class="badge badge-completed">Active</span>
+                        {% else %}
+                            <span class="badge badge-cancelled">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td style="text-align: right;">
+                        <a href="{% url 'user_edit' user_obj.pk %}" class="btn btn-sm btn-secondary" style="margin-right: 8px;">Edit</a>
+                        {% if user_obj != user %}
+                        <a href="{% url 'user_delete' user_obj.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" style="text-align: center; padding: 32px; color: var(--text-secondary);">
+                        No users found.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Mobile Card List -->
+    <div class="mobile-only">
+        {% for user_obj in users %}
+        <div class="list-card">
+            <div class="list-card-header">
+                <h4>{{ user_obj.username }}</h4>
+                {% if user_obj.is_active %}
+                    <span class="badge badge-completed">Active</span>
+                {% else %}
+                    <span class="badge badge-cancelled">Inactive</span>
+                {% endif %}
+            </div>
+            <div class="list-card-body">
+                <div class="list-field">
+                    <span class="list-field-label">Name:</span>
+                    <span class="list-field-value">{{ user_obj.first_name }} {{ user_obj.last_name }}</span>
+                </div>
+                <div class="list-field">
+                    <span class="list-field-label">Email:</span>
+                    <span class="list-field-value">{{ user_obj.email|default:"-" }}</span>
+                </div>
+                <div class="list-field">
+                    <span class="list-field-label">Role:</span>
+                    <span class="list-field-value">
+                        {% if user_obj.groups.all.0 %}
+                            <span class="badge {% if user_obj.groups.all.0.name == 'Admin' %}badge-info{% else %}badge-pending{% endif %}">
+                                {{ user_obj.groups.all.0.name }}
+                            </span>
+                        {% else %}
+                            No role
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+            <div class="list-card-actions">
+                <a href="{% url 'user_edit' user_obj.pk %}" class="btn btn-secondary btn-sm">Edit</a>
+                {% if user_obj != user %}
+                <a href="{% url 'user_delete' user_obj.pk %}" class="btn btn-danger btn-sm">Delete</a>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="empty-state">
+            <svg class="empty-state-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+            </svg>
+            <div class="empty-state-title">No users found</div>
+            <div class="empty-state-description">Create your first user account.</div>
+        </div>
+        {% endfor %}
+    </div>
 </div>
 {% endblock %}

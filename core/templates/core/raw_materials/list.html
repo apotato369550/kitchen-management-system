@@ -3,90 +3,96 @@
 {% block title %}Raw Materials - Kitchen Management System{% endblock %}
 
 {% block content %}
-<div class="mb-8 flex justify-between items-center">
-    <div>
-        <h1 class="text-3xl font-bold text-gray-900">Raw Materials Library</h1>
-        <p class="mt-2 text-sm text-gray-600">Manage raw materials and inventory</p>
+<div class="page-header">
+    <div class="page-title-group">
+        <h1>Raw Materials Library</h1>
+        <p>Manage raw materials and inventory</p>
     </div>
-    <a href="{% url 'raw_material_create' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
-        Add Material
-    </a>
+    <div class="page-actions">
+        <a href="{% url 'raw_material_create' %}" class="btn btn-primary">Add Material</a>
+    </div>
 </div>
 
-<!-- Category Filter -->
-<div class="mb-6 bg-white shadow rounded-lg p-4">
-    <form method="get" class="flex gap-4 items-center">
-        <label class="text-sm font-medium text-gray-700">Filter by Category:</label>
-        <select name="category" class="form-select max-w-xs">
-            <option value="">All Categories</option>
-            {% for value, label in category_choices %}
-            <option value="{{ value }}" {% if selected_category == value %}selected{% endif %}>
-                {{ label }}
-            </option>
-            {% endfor %}
-        </select>
-        <button type="submit" class="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-            Filter
-        </button>
-        {% if selected_category %}
-        <a href="{% url 'raw_material_list' %}" class="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-            Clear
-        </a>
-        {% endif %}
-    </form>
-</div>
+<div class="content-container">
+    <!-- Filter -->
+    <div class="card" style="margin-bottom: 24px;">
+        <div class="card-body">
+            <form method="get" class="flex gap-4 items-center flex-wrap">
+                <label class="form-label" style="margin-bottom: 0;">Category:</label>
+                <select name="category" class="form-select" style="flex: 1; max-width: 200px; min-width: 150px;">
+                    <option value="">All Categories</option>
+                    {% for value, label in category_choices %}
+                    <option value="{{ value }}" {% if selected_category == value %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-secondary">Filter</button>
+                {% if selected_category %}
+                <a href="{% url 'raw_material_list' %}" class="btn btn-secondary">Clear</a>
+                {% endif %}
+            </form>
+        </div>
+    </div>
 
-<!-- Materials Table -->
-{% if materials %}
-<div class="bg-white shadow overflow-hidden rounded-lg">
-    <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-            <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Name
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Category
-                </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Unit
-                </th>
-                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                </th>
-            </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
-            {% for material in materials %}
-            <tr>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {{ material.name }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {{ material.get_category_display }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {{ material.unit }}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <a href="{% url 'raw_material_edit' material.pk %}" class="text-blue-600 hover:text-blue-900 mr-4">
-                        Edit
-                    </a>
-                    <a href="{% url 'raw_material_delete' material.pk %}" class="text-red-600 hover:text-red-900">
-                        Delete
-                    </a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <!-- Desktop Table -->
+    {% if materials %}
+    <div class="table-wrapper desktop-only">
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Unit</th>
+                    <th style="text-align: right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for material in materials %}
+                <tr>
+                    <td>{{ material.name }}</td>
+                    <td>{{ material.get_category_display }}</td>
+                    <td>{{ material.unit }}</td>
+                    <td style="text-align: right;">
+                        <a href="{% url 'raw_material_edit' material.pk %}" class="btn btn-sm btn-secondary" style="margin-right: 8px;">Edit</a>
+                        <a href="{% url 'raw_material_delete' material.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Mobile Card List -->
+    <div class="mobile-only">
+        {% for material in materials %}
+        <div class="list-card">
+            <div class="list-card-header">
+                <h4>{{ material.name }}</h4>
+                <span class="badge badge-info">{{ material.get_category_display }}</span>
+            </div>
+            <div class="list-card-body">
+                <div class="list-field">
+                    <span class="list-field-label">Unit:</span>
+                    <span class="list-field-value">{{ material.unit }}</span>
+                </div>
+            </div>
+            <div class="list-card-actions">
+                <a href="{% url 'raw_material_edit' material.pk %}" class="btn btn-secondary btn-sm">Edit</a>
+                <a href="{% url 'raw_material_delete' material.pk %}" class="btn btn-danger btn-sm">Delete</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <svg class="empty-state-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+        </svg>
+        <div class="empty-state-title">No raw materials found</div>
+        <div class="empty-state-description">Start by adding your first raw material to the library.</div>
+        <a href="{% url 'raw_material_create' %}" class="btn btn-primary empty-state-action">Add Material</a>
+    </div>
+    {% endif %}
 </div>
-{% else %}
-<div class="bg-white shadow rounded-lg p-8 text-center">
-    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-    </svg>
-    <p class="mt-4 text-gray-600">No raw materials found. <a href="{% url 'raw_material_create' %}" class="text-blue-600 hover:text-blue-900">Add one now</a>.</p>
-</div>
-{% endif %}
 {% endblock %}

@@ -9,16 +9,16 @@
     </a>
 </div>
 
-<div class="mb-6">
-    <h1 class="text-3xl font-bold text-gray-900">Add Update to {{ order.po_number }}</h1>
-    <p class="mt-2 text-sm text-gray-600">
-        Customer: <span class="font-medium text-gray-900">{{ order.customer.name }}</span>
-    </p>
+<div class="page-header">
+    <div class="page-title-group">
+        <h1>Add Delivery Update</h1>
+        <p>{{ order.po_number }} - {{ order.customer.name }}</p>
+    </div>
 </div>
 
-<div class="max-w-2xl">
-    <div class="bg-white shadow rounded-lg">
-        <div class="px-4 py-5 sm:p-6">
+<div class="content-container">
+    <div class="card" style="max-width: 700px; margin-bottom: 24px;">
+        <div class="card-body">
             <form method="post" class="space-y-6">
                 {% csrf_token %}
 
@@ -69,12 +69,12 @@
                 </div>
 
                 <!-- Current Order Status Info -->
-                <div class="bg-blue-50 border border-blue-200 rounded-md p-4">
-                    <h4 class="text-sm font-medium text-blue-900 mb-2">Current Order Status</h4>
-                    <div class="text-sm text-blue-700 space-y-1">
-                        <p><span class="font-medium">Status:</span> {{ order.get_status_display }}</p>
-                        <p><span class="font-medium">Progress:</span> {{ order.overall_progress|floatformat:0 }}%</p>
-                        <p><span class="font-medium">Items:</span> {{ order.items_count }}</p>
+                <div style="background: var(--primary-50); border: 1px solid var(--primary-500); border-radius: 8px; padding: 16px; margin-bottom: 24px;">
+                    <h4 style="font-size: 13px; font-weight: 600; color: var(--primary-700); margin-bottom: 8px;">Current Order Status</h4>
+                    <div style="font-size: 13px; color: var(--primary-700); display: grid; gap: 4px;">
+                        <p style="margin: 0;"><span style="font-weight: 500;">Status:</span> {{ order.get_status_display }}</p>
+                        <p style="margin: 0;"><span style="font-weight: 500;">Progress:</span> {{ order.overall_progress|floatformat:0 }}%</p>
+                        <p style="margin: 0;"><span style="font-weight: 500;">Items:</span> {{ order.items_count }}</p>
                     </div>
                 </div>
 
@@ -89,31 +89,5 @@
             </form>
         </div>
     </div>
-
-    <!-- Recent Updates Preview -->
-    {% if recent_updates %}
-    <div class="mt-8 bg-white shadow rounded-lg">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-lg font-medium text-gray-900">Recent Updates</h3>
-        </div>
-        <div class="divide-y divide-gray-200 max-h-96 overflow-y-auto">
-            {% for update in recent_updates %}
-            <div class="px-6 py-3">
-                <div class="flex justify-between items-start mb-1">
-                    <p class="text-xs font-medium text-gray-500">
-                        {{ update.created_at|date:"M d, Y h:i A" }}
-                    </p>
-                    {% if update.quantity_delivered %}
-                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                        Qty: {{ update.quantity_delivered }}
-                    </span>
-                    {% endif %}
-                </div>
-                <p class="text-sm text-gray-700">{{ update.note|truncatewords:20 }}</p>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-    {% endif %}
 </div>
 {% endblock %}

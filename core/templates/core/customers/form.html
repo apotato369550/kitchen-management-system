@@ -3,48 +3,46 @@
 {% block title %}{{ title }} - Kitchen Management System{% endblock %}
 
 {% block content %}
-<div class="mb-8">
-    <h1 class="text-3xl font-bold text-gray-900">{{ title }}</h1>
+<div class="page-header">
+    <div class="page-title-group">
+        <h1>{{ title }}</h1>
+    </div>
 </div>
 
-<div class="max-w-2xl">
-    <div class="bg-white shadow rounded-lg">
-        <div class="px-4 py-5 sm:p-6">
-            <form method="post" class="space-y-6">
+<div class="content-container">
+    <div class="card" style="max-width: 600px;">
+        <div class="card-body">
+            <form method="post" style="display: grid; gap: 24px;">
                 {% csrf_token %}
 
                 {% if form.non_field_errors %}
-                <div class="rounded-md bg-red-50 p-4">
-                    <p class="text-sm text-red-700">{{ form.non_field_errors }}</p>
+                <div style="background: var(--danger-50); border: 1px solid var(--danger-500); color: var(--danger-700); padding: 16px; border-radius: 8px; font-size: 14px;">
+                    {{ form.non_field_errors }}
                 </div>
                 {% endif %}
 
                 {% for field in form %}
-                <div>
-                    <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}" class="form-label">
                         {{ field.label }}
                     </label>
-                    {{ field }}
+                    <div style="margin-top: 8px;">{{ field }}</div>
                     {% if field.errors %}
-                    <p class="mt-1 text-sm text-red-600">
+                    <p class="form-error">
                         {% for error in field.errors %}
                             {{ error }}
                         {% endfor %}
                     </p>
                     {% endif %}
                     {% if field.help_text %}
-                    <p class="mt-1 text-sm text-gray-500">{{ field.help_text|safe }}</p>
+                    <p class="form-help">{{ field.help_text|safe }}</p>
                     {% endif %}
                 </div>
                 {% endfor %}
 
-                <div class="flex gap-3">
-                    <button type="submit" class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
-                        {{ button_text }}
-                    </button>
-                    <a href="{% url 'customer_list' %}" class="inline-flex justify-center items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                        Cancel
-                    </a>
+                <div class="form-actions sticky-bottom-mobile">
+                    <button type="submit" class="btn btn-primary btn-lg">{{ button_text }}</button>
+                    <a href="{% url 'customer_list' %}" class="btn btn-secondary btn-lg">Cancel</a>
                 </div>
             </form>
         </div>

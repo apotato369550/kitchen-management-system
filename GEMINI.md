@@ -96,7 +96,7 @@ All models use UUIDs for primary keys.
 *   **Continuous Deployment:** Pushing to the `main` branch on GitHub automatically triggers a new deployment on Render.
 *   **Superuser Creation:** On first deploy, a superuser is created using credentials from environment variables set in `render.yaml` (`ADMIN_USERNAME`, `ADMIN_PASSWORD`, etc.).
 
-## Current Status (v0.3.0)
+## Current Status (v0.3.1)
 
 *   **Completed:**
     *   Auth System (Admin/Management roles).

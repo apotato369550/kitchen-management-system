@@ -3,37 +3,20 @@
 {% block title %}{{ customer.name }} - Kitchen Management System{% endblock %}
 
 {% block content %}
-<div class="mb-8">
-    <a href="{% url 'customer_list' %}" class="text-sm text-blue-600 hover:text-blue-900 mb-4 inline-block">
-        &larr; Back to Customers
+<div style="margin-bottom: 16px;">
+    <a href="{% url 'customer_list' %}" style="font-size: 13px; color: var(--primary-600); text-decoration: none; display: inline-block; margin-bottom: 12px;">
+        ← Back to Customers
     </a>
 </div>
 
-<!-- Customer Info -->
-<div class="bg-white shadow rounded-lg p-6 mb-8">
-    <div class="flex justify-between items-start">
-        <div>
-            <h1 class="text-3xl font-bold text-gray-900">{{ customer.name }}</h1>
-            <div class="mt-4 space-y-2">
-                <p class="text-sm text-gray-600">
-                    <span class="font-medium text-gray-900">Contact:</span> {{ customer.contact_info|default:"—" }}
-                </p>
-                <p class="text-sm text-gray-600">
-                    <span class="font-medium text-gray-900">Customer Since:</span> {{ customer.created_at|date:"M d, Y" }}
-                </p>
-                <p class="text-sm text-gray-600">
-                    <span class="font-medium text-gray-900">Total Orders:</span> {{ customer.purchase_orders.count }}
-                </p>
-            </div>
-        </div>
-        <div class="flex gap-3">
-            <a href="{% url 'customer_edit' customer.pk %}" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                Edit Customer
-            </a>
-            <a href="{% url 'customer_delete' customer.pk %}" class="inline-flex items-center px-4 py-2 border border-red-300 text-sm font-medium rounded-md text-red-700 bg-white hover:bg-red-50">
-                Delete
-            </a>
-        </div>
+<div class="page-header">
+    <div class="page-title-group">
+        <h1>{{ customer.name }}</h1>
+        <p>Customer Details</p>
+    </div>
+    <div class="page-actions">
+        <a href="{% url 'customer_edit' customer.pk %}" class="btn btn-secondary">Edit</a>
+        <a href="{% url 'customer_delete' customer.pk %}" class="btn btn-danger">Delete</a>
     </div>
 </div>
 
@@ -81,7 +64,6 @@
                 </div>
             </div>
         </div>
-        {% endfor %}
     </div>
     {% else %}
     <div class="px-6 py-8 text-center">
@@ -90,6 +72,5 @@
         </svg>
         <p class="mt-4 text-gray-600">No orders yet. <a href="{% url 'purchase_order_create' %}?customer={{ customer.pk }}" class="text-blue-600 hover:text-blue-900">Create first order</a>.</p>
     </div>
-    {% endif %}
 </div>
 {% endblock %}

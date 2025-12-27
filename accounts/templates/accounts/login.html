@@ -1,121 +1,241 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Cebu Best Value Trading Kitchen Management System</title>
-    <script>
-        tailwindConfig = {
-            darkMode: 'class'
-        }
-    </script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{% static 'core/css/main.css' %}">
     <style>
-        /* Explicit dark mode styles */
-        html.dark {
-            color-scheme: dark;
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary-50) 0%, #f0f9ff 100%);
         }
-        html.dark body {
-            background: linear-gradient(to bottom right, #111827, #0f172a) !important;
-            color: #f3f4f6;
+
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 24px;
         }
-        html.dark div {
-            background-color: inherit;
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 32px;
         }
-        html.dark div[class*="bg-white"] {
-            background-color: #1f2937 !important;
+
+        .login-logo {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            box-shadow: var(--shadow-md);
+            font-size: 28px;
         }
-        html.dark div[class*="bg-gradient-to-br from-blue-50"] {
-            background: linear-gradient(to bottom right, rgba(30, 58, 138, 0.2), rgba(7, 89, 133, 0.2)) !important;
+
+        .login-header h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
         }
-        html.dark h1, html.dark h2, html.dark h3 {
-            color: #f3f4f6 !important;
+
+        .login-header p {
+            font-size: 14px;
+            color: var(--text-secondary);
         }
-        html.dark p, html.dark label {
-            color: #d1d5db !important;
+
+        .login-card {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            padding: 32px;
+            animation: slideUp 0.4s ease;
         }
-        html.dark button {
-            color: #f3f4f6;
+
+        .login-card h2 {
+            font-size: 20px;
+            margin-bottom: 24px;
+            text-align: center;
         }
-        html.dark input,
-        html.dark textarea,
-        html.dark select {
-            background-color: #374151 !important;
-            color: #f3f4f6 !important;
-            border-color: #4b5563 !important;
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
-        html.dark input::placeholder,
-        html.dark textarea::placeholder {
-            color: #9ca3af !important;
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
-        html.dark div[class*="border-gray-200"],
-        html.dark div[class*="border-blue-200"] {
-            border-color: #374151 !important;
+
+        .form-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .form-input {
+            width: 100%;
+            min-height: 48px;
+            padding: 12px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            color: var(--text-primary);
+            background: var(--bg-primary);
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-600);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .form-error {
+            font-size: 13px;
+            color: var(--danger-600);
+        }
+
+        .login-errors {
+            background: var(--danger-50);
+            border: 1px solid var(--danger-500);
+            color: var(--danger-700);
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .login-submit {
+            width: 100%;
+            min-height: 48px;
+            background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 8px;
+        }
+
+        .login-submit:hover {
+            background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+        }
+
+        .login-submit:active {
+            transform: scale(0.97);
+        }
+
+        .login-footer {
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 24px;
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 16px;
+            }
+
+            .login-card {
+                padding: 24px;
+            }
+
+            .login-header {
+                margin-bottom: 24px;
+            }
+
+            .login-card h2 {
+                font-size: 18px;
+            }
         }
     </style>
-    <script>
-        // Set dark mode by default
-        document.documentElement.classList.add('dark');
-    </script>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-gray-900 dark:to-gray-800 min-h-screen flex items-center justify-center transition-colors duration-300">
-    <div class="max-w-md w-full mx-4">
-        <!-- Logo/Brand -->
-        <div class="text-center mb-8">
-            <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg mb-4">
-                <span class="text-3xl">🍳</span>
-            </div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Cebu Best Value Trading</h1>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Kitchen Management System</p>
+<body>
+    <div class="login-container">
+        <!-- Header -->
+        <div class="login-header">
+            <div class="login-logo">☰</div>
+            <h1>Cebu Best Value Trading</h1>
+            <p>Kitchen Management System</p>
         </div>
 
-        <!-- Login Form -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
-                Sign in
-            </h2>
+        <!-- Login Card -->
+        <div class="login-card">
+            <h2>Sign in</h2>
 
-            <form class="space-y-6" method="post">
+            <form class="login-form" method="post">
                 {% csrf_token %}
 
-                <div>
-                    <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Username
-                    </label>
-                    <input type="text" name="username" id="{{ form.username.id_for_label }}" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400" required>
-                    {% if form.username.errors %}
-                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.username.errors.0 }}</p>
-                    {% endif %}
-                </div>
-
-                <div>
-                    <label for="{{ form.password.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Password
-                    </label>
-                    <input type="password" name="password" id="{{ form.password.id_for_label }}" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400" required>
-                    {% if form.password.errors %}
-                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ form.password.errors.0 }}</p>
-                    {% endif %}
-                </div>
-
+                <!-- Errors -->
                 {% if form.non_field_errors %}
-                <div class="rounded-lg bg-red-50 dark:bg-red-900/20 p-4 border border-red-200 dark:border-red-800">
-                    <p class="text-sm text-red-800 dark:text-red-300">
-                        {{ form.non_field_errors.0 }}
-                    </p>
+                <div class="login-errors">
+                    {{ form.non_field_errors.0 }}
                 </div>
                 {% endif %}
 
-                <button type="submit" class="w-full py-3 px-4 bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 text-white font-medium rounded-lg hover:from-blue-600 hover:to-blue-700 dark:hover:from-blue-700 dark:hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition">
-                    Sign in
-                </button>
+                <!-- Username -->
+                <div class="form-group">
+                    <label for="{{ form.username.id_for_label }}" class="form-label">
+                        Username
+                    </label>
+                    <input
+                        type="text"
+                        name="username"
+                        id="{{ form.username.id_for_label }}"
+                        class="form-input"
+                        placeholder="Enter your username"
+                        required
+                        autofocus
+                    >
+                    {% if form.username.errors %}
+                    <span class="form-error">{{ form.username.errors.0 }}</span>
+                    {% endif %}
+                </div>
+
+                <!-- Password -->
+                <div class="form-group">
+                    <label for="{{ form.password.id_for_label }}" class="form-label">
+                        Password
+                    </label>
+                    <input
+                        type="password"
+                        name="password"
+                        id="{{ form.password.id_for_label }}"
+                        class="form-input"
+                        placeholder="Enter your password"
+                        required
+                    >
+                    {% if form.password.errors %}
+                    <span class="form-error">{{ form.password.errors.0 }}</span>
+                    {% endif %}
+                </div>
+
+                <!-- Submit -->
+                <button type="submit" class="login-submit">Sign in</button>
             </form>
         </div>
 
-        <!-- Info -->
-        <p class="text-center text-sm text-gray-600 dark:text-gray-400 mt-6">
+        <!-- Footer -->
+        <p class="login-footer">
             Contact an administrator if you need an account
         </p>
     </div>
+
+    <script src="{% static 'core/js/app.js' %}"></script>
 </body>
 </html>

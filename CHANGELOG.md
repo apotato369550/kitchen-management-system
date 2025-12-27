@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.1] - 2025-12-27
+
+### Changed
+- **UI/UX Redesign** (Plan 09)
+  - Upgraded from dark mode to light theme for better readability and professional appearance
+  - Enhanced typography: 17px base font size with bolder form labels for better visibility
+  - Larger logo with "CBVT Kitchen Management System" prominent branding in navigation
+  - User management interface redesigned with responsive cards and tables
+  - All list view action links converted to styled buttons for consistency and touch-friendliness
+  - Empty state warnings on create forms (consumption, production, orders) with clear icons and instructions
+  - Recent additions sidebars on all create forms showing top 10 records for quick reference
+  - Production history now groups records by date with visual day headers for easier scanning
+  - "Add Another Item" button properly styled and positioned
+  - Improved form spacing and visual hierarchy throughout application
+
+- **Database Documentation Correction**
+  - Updated documentation to reflect Render PostgreSQL (corrected from Supabase references)
+  - Environment variable naming clarified for Render database configuration
+
 ## [0.3.0] - 2025-12-20
 
 ### Added
