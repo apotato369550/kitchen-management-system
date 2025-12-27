@@ -45,58 +45,82 @@
         </div>
     </div>
 
-    <!-- Desktop Table -->
-    {% if productions %}
-    <div class="table-wrapper desktop-only">
-        <table>
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Product</th>
-                    <th>Quantity</th>
-                    <th>Contents</th>
-                    <th style="text-align: right;">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for production in productions %}
-                <tr>
-                    <td>{{ production.date }}</td>
-                    <td>{{ production.product_type.name }}</td>
-                    <td>{{ production.quantity }}</td>
-                    <td>{{ production.contents_description|truncatewords:10 }}</td>
-                    <td style="text-align: right;">
-                        <a href="{% url 'production_delete' production.pk %}" style="color: var(--danger-600);">Delete</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <!-- Desktop: Grouped by Day -->
+    {% if productions_by_day %}
+    <div class="desktop-only">
+        {% for day_group in productions_by_day %}
+        <div style="margin-bottom: 32px;">
+            <!-- Date Header -->
+            <div style="background: linear-gradient(135deg, var(--primary-500), var(--primary-600)); color: white; padding: 12px 20px; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-sm);">
+                <h3 style="margin: 0; font-size: 18px; font-weight: 600;">{{ day_group.date|date:"l, F j, Y" }}</h3>
+                <span style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 12px; font-size: 14px; font-weight: 500;">{{ day_group.productions|length }} record{{ day_group.productions|length|pluralize }}</span>
+            </div>
+
+            <!-- Records Table -->
+            <div class="table-wrapper" style="border-radius: 0 0 12px 12px; margin-top: 0;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Quantity</th>
+                            <th>Contents</th>
+                            <th>Time</th>
+                            <th style="text-align: right;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for production in day_group.productions %}
+                        <tr>
+                            <td style="font-weight: 600;">{{ production.product_type.name }}</td>
+                            <td>{{ production.quantity }}</td>
+                            <td>{{ production.contents_description|truncatewords:10 }}</td>
+                            <td style="color: var(--text-secondary); font-size: 14px;">{{ production.created_at|date:"g:i A" }}</td>
+                            <td style="text-align: right;">
+                                <a href="{% url 'production_delete' production.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endfor %}
     </div>
 
-    <!-- Mobile Card List -->
+    <!-- Mobile: Grouped Card List -->
     <div class="mobile-only">
-        {% for production in productions %}
-        <div class="list-card">
-            <div class="list-card-header">
-                <h4>{{ production.product_type.name }}</h4>
-                <span class="badge badge-info">{{ production.date }}</span>
+        {% for day_group in productions_by_day %}
+        <div style="margin-bottom: 32px;">
+            <!-- Date Header -->
+            <div style="background: linear-gradient(135deg, var(--primary-500), var(--primary-600)); color: white; padding: 12px 16px; border-radius: 12px; margin-bottom: 12px; box-shadow: var(--shadow-sm);">
+                <h3 style="margin: 0; font-size: 16px; font-weight: 600;">{{ day_group.date|date:"M j, Y" }}</h3>
+                <p style="margin: 4px 0 0 0; font-size: 13px; opacity: 0.9;">{{ day_group.productions|length }} record{{ day_group.productions|length|pluralize }}</p>
             </div>
-            <div class="list-card-body">
-                <div class="list-field">
-                    <span class="list-field-label">Qty:</span>
-                    <span class="list-field-value">{{ production.quantity }}</span>
+
+            <!-- Records -->
+            {% for production in day_group.productions %}
+            <div class="list-card">
+                <div class="list-card-header">
+                    <h4>{{ production.product_type.name }}</h4>
+                    <span style="font-size: 12px; color: var(--text-secondary);">{{ production.created_at|date:"g:i A" }}</span>
                 </div>
-                {% if production.contents_description %}
-                <div class="list-field">
-                    <span class="list-field-label">Contents:</span>
-                    <span class="list-field-value">{{ production.contents_description|truncatewords:8 }}</span>
+                <div class="list-card-body">
+                    <div class="list-field">
+                        <span class="list-field-label">Qty:</span>
+                        <span class="list-field-value">{{ production.quantity }}</span>
+                    </div>
+                    {% if production.contents_description %}
+                    <div class="list-field">
+                        <span class="list-field-label">Contents:</span>
+                        <span class="list-field-value">{{ production.contents_description|truncatewords:8 }}</span>
+                    </div>
+                    {% endif %}
                 </div>
-                {% endif %}
+                <div class="list-card-actions">
+                    <a href="{% url 'production_delete' production.pk %}" class="btn btn-danger btn-sm">Delete</a>
+                </div>
             </div>
-            <div class="list-card-actions">
-                <a href="{% url 'production_delete' production.pk %}" class="btn btn-danger btn-sm">Delete</a>
-            </div>
+            {% endfor %}
         </div>
         {% endfor %}
     </div>
