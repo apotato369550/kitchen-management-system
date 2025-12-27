@@ -10,129 +10,195 @@
 </div>
 
 <div class="content-container">
-    <div class="card">
-        <div class="card-body" style="padding: 24px;">
-            <form method="post" class="space-y-6">
-                {% csrf_token %}
+    <div style="display: grid; grid-template-columns: 1fr; gap: 24px;">
+        <!-- Desktop: 2-column layout with sidebar -->
+        <div style="display: grid; grid-template-columns: 1fr 350px; gap: 24px;">
 
-                {% if form.non_field_errors %}
-                <div class="rounded-md bg-red-50 p-4">
-                    <p class="text-sm text-red-700">{{ form.non_field_errors }}</p>
-                </div>
-                {% endif %}
-
-                <!-- Customer Selection -->
-                <div>
-                    <label for="{{ form.customer.id_for_label }}" class="block text-sm font-medium text-gray-700">
-                        {{ form.customer.label }}
-                    </label>
-                    {{ form.customer }}
-                    {% if form.customer.errors %}
-                    <p class="mt-1 text-sm text-red-600">
-                        {% for error in form.customer.errors %}
-                            {{ error }}
-                        {% endfor %}
-                    </p>
-                    {% endif %}
-                    {% if form.customer.help_text %}
-                    <p class="mt-1 text-sm text-gray-500">{{ form.customer.help_text|safe }}</p>
-                    {% endif %}
-                </div>
-
-                <!-- Status Selection -->
-                {% if form.status %}
-                <div>
-                    <label for="{{ form.status.id_for_label }}" class="block text-sm font-medium text-gray-700">
-                        {{ form.status.label }}
-                    </label>
-                    {{ form.status }}
-                    {% if form.status.errors %}
-                    <p class="mt-1 text-sm text-red-600">
-                        {% for error in form.status.errors %}
-                            {{ error }}
-                        {% endfor %}
-                    </p>
-                    {% endif %}
-                    {% if form.status.help_text %}
-                    <p class="mt-1 text-sm text-gray-500">{{ form.status.help_text|safe }}</p>
-                    {% endif %}
-                </div>
-                {% endif %}
-
-                <!-- Line Items -->
-                <div class="border-t border-gray-200 pt-6">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">Order Items</h3>
-
-                    {{ formset.management_form }}
-
-                    {% if formset.non_form_errors %}
-                    <div class="rounded-md bg-red-50 p-4 mb-4">
-                        <p class="text-sm text-red-700">{{ formset.non_form_errors }}</p>
-                    </div>
-                    {% endif %}
-
-                    <div id="formset-container" class="space-y-4">
-                        {% for item_form in formset %}
-                        <div class="formset-form border border-gray-200 rounded-lg p-4 bg-gray-50">
-                            {{ item_form.id }}
-                            {{ item_form.DELETE }}
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label for="{{ item_form.product_type.id_for_label }}" class="block text-sm font-medium text-gray-700">
-                                        Product Type
-                                    </label>
-                                    {{ item_form.product_type }}
-                                    {% if item_form.product_type.errors %}
-                                    <p class="mt-1 text-sm text-red-600">
-                                        {% for error in item_form.product_type.errors %}
-                                            {{ error }}
-                                        {% endfor %}
-                                    </p>
-                                    {% endif %}
-                                </div>
-
-                                <div>
-                                    <label for="{{ item_form.quantity_ordered.id_for_label }}" class="block text-sm font-medium text-gray-700">
-                                        Quantity
-                                    </label>
-                                    {{ item_form.quantity_ordered }}
-                                    {% if item_form.quantity_ordered.errors %}
-                                    <p class="mt-1 text-sm text-red-600">
-                                        {% for error in item_form.quantity_ordered.errors %}
-                                            {{ error }}
-                                        {% endfor %}
-                                    </p>
-                                    {% endif %}
-                                </div>
+            <!-- Main Form Column -->
+            <div class="card">
+                {% if not customers_exist or not products_exist %}
+                <div style="padding: 20px; background: var(--warning-50); border: 2px solid var(--warning-600); border-radius: 12px 12px 0 0; border-bottom: none;">
+                    <div style="display: flex; gap: 12px; align-items: flex-start;">
+                        <svg style="width: 24px; height: 24px; color: var(--warning-700); flex-shrink: 0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        </svg>
+                        <div>
+                            <h4 style="margin: 0 0 8px 0; font-size: 16px; color: var(--warning-700);">Missing Required Data</h4>
+                            {% if not customers_exist and not products_exist %}
+                            <p style="margin: 0 0 12px 0; font-size: 14px; color: var(--warning-700);">You need to create customers and product types before creating orders.</p>
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                <a href="{% url 'customer_create' %}" class="btn btn-sm" style="background: var(--warning-600); color: white;">Add Customer</a>
+                                <a href="{% url 'product_type_create' %}" class="btn btn-sm" style="background: var(--warning-600); color: white;">Add Product Type</a>
                             </div>
-
-                            {% if not forloop.first %}
-                            <div class="mt-3">
-                                <button type="button" class="remove-form text-sm text-red-600 hover:text-red-900">
-                                    Remove Item
-                                </button>
-                            </div>
+                            {% elif not customers_exist %}
+                            <p style="margin: 0 0 12px 0; font-size: 14px; color: var(--warning-700);">You need to create customers first before creating orders.</p>
+                            <a href="{% url 'customer_create' %}" class="btn btn-sm" style="background: var(--warning-600); color: white;">Add Customer</a>
+                            {% else %}
+                            <p style="margin: 0 0 12px 0; font-size: 14px; color: var(--warning-700);">You need to create product types first before creating orders.</p>
+                            <a href="{% url 'product_type_create' %}" class="btn btn-sm" style="background: var(--warning-600); color: white;">Add Product Type</a>
                             {% endif %}
                         </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="card-body" style="padding: 24px;">
+                    <form method="post" class="space-y-6">
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                        <div class="rounded-md bg-red-50 p-4">
+                            <p class="text-sm text-red-700">{{ form.non_field_errors }}</p>
+                        </div>
+                        {% endif %}
+
+                        <!-- Customer Selection -->
+                        <div>
+                            <label for="{{ form.customer.id_for_label }}" class="form-label">
+                                {{ form.customer.label }}
+                            </label>
+                            {{ form.customer }}
+                            {% if form.customer.errors %}
+                            <p class="mt-1 text-sm text-red-600">
+                                {% for error in form.customer.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </p>
+                            {% endif %}
+                            {% if form.customer.help_text %}
+                            <p class="mt-1 text-sm text-gray-500">{{ form.customer.help_text|safe }}</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Status Selection -->
+                        {% if form.status %}
+                        <div>
+                            <label for="{{ form.status.id_for_label }}" class="form-label">
+                                {{ form.status.label }}
+                            </label>
+                            {{ form.status }}
+                            {% if form.status.errors %}
+                            <p class="mt-1 text-sm text-red-600">
+                                {% for error in form.status.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </p>
+                            {% endif %}
+                            {% if form.status.help_text %}
+                            <p class="mt-1 text-sm text-gray-500">{{ form.status.help_text|safe }}</p>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        <!-- Line Items -->
+                        <div class="border-t border-gray-200 pt-6">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Order Items</h3>
+
+                            {{ formset.management_form }}
+
+                            {% if formset.non_form_errors %}
+                            <div class="rounded-md bg-red-50 p-4 mb-4">
+                                <p class="text-sm text-red-700">{{ formset.non_form_errors }}</p>
+                            </div>
+                            {% endif %}
+
+                            <div id="formset-container" class="space-y-4">
+                                {% for item_form in formset %}
+                                <div class="formset-form border border-gray-200 rounded-lg p-4 bg-gray-50">
+                                    {{ item_form.id }}
+                                    {{ item_form.DELETE }}
+
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label for="{{ item_form.product_type.id_for_label }}" class="form-label">
+                                                Product Type
+                                            </label>
+                                            {{ item_form.product_type }}
+                                            {% if item_form.product_type.errors %}
+                                            <p class="mt-1 text-sm text-red-600">
+                                                {% for error in item_form.product_type.errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            </p>
+                                            {% endif %}
+                                        </div>
+
+                                        <div>
+                                            <label for="{{ item_form.quantity_ordered.id_for_label }}" class="form-label">
+                                                Quantity
+                                            </label>
+                                            {{ item_form.quantity_ordered }}
+                                            {% if item_form.quantity_ordered.errors %}
+                                            <p class="mt-1 text-sm text-red-600">
+                                                {% for error in item_form.quantity_ordered.errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            </p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    {% if not forloop.first %}
+                                    <div class="mt-3">
+                                        <button type="button" class="remove-form btn btn-sm btn-danger">
+                                            Remove Item
+                                        </button>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="mt-4">
+                                <button type="button" id="add-form" class="btn btn-secondary">
+                                    + Add Another Item
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-actions sticky-bottom-mobile" style="border-top: 1px solid var(--border-color); padding-top: 24px; margin-top: 24px;">
+                            <button type="submit" class="btn btn-primary btn-lg">Create Order</button>
+                            <a href="{% url 'purchase_order_list' %}" class="btn btn-secondary btn-lg">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Recent Orders Sidebar (Desktop Only) -->
+            {% if recent_records %}
+            <div class="card desktop-only" style="height: fit-content;">
+                <div class="card-header">
+                    <h3 style="font-size: 18px; margin: 0;">Recent Orders</h3>
+                </div>
+                <div class="card-body" style="padding: 0;">
+                    <div style="max-height: 600px; overflow-y: auto;">
+                        {% for record in recent_records %}
+                        <a href="{% url 'order_detail' record.pk %}" style="display: block; padding: 16px; border-bottom: 1px solid var(--border-color); text-decoration: none; transition: background-color 0.2s; {% if forloop.last %}border-bottom: none;{% endif %}" onmouseover="this.style.backgroundColor='var(--bg-secondary)'" onmouseout="this.style.backgroundColor='transparent'">
+                            <div style="font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">{{ record.po_number }}</div>
+                            <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 4px;">{{ record.customer.name }}</div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span class="badge badge-{{ record.status }}" style="font-size: 10px;">{{ record.get_status_display }}</span>
+                                <span style="font-size: 12px; color: var(--text-secondary);">{{ record.created_at|date:"M d" }}</span>
+                            </div>
+                        </a>
                         {% endfor %}
                     </div>
-
-                    <div class="mt-4">
-                        <button type="button" id="add-form" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                            + Add Another Item
-                        </button>
-                    </div>
                 </div>
+            </div>
+            {% endif %}
 
-                <div class="form-actions sticky-bottom-mobile" style="border-top: 1px solid var(--border-color); padding-top: 24px; margin-top: 24px;">
-                    <button type="submit" class="btn btn-primary btn-lg">Create Order</button>
-                    <a href="{% url 'purchase_order_list' %}" class="btn btn-secondary btn-lg">Cancel</a>
-                </div>
-            </form>
         </div>
     </div>
 </div>
+
+<style>
+/* Mobile: Stack layout */
+@media (max-width: 1024px) {
+    .content-container > div > div {
+        grid-template-columns: 1fr !important;
+    }
+}
+</style>
 
 <script>
     // Formset management

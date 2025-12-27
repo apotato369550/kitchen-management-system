@@ -164,10 +164,16 @@ def consumption_create(request):
     else:
         form = DailyConsumptionForm()
 
+    # Get recent consumption records and check if materials exist
+    recent_consumptions = DailyConsumption.objects.select_related('raw_material').order_by('-created_at')[:10]
+    materials_exist = RawMaterial.objects.exists()
+
     return render(request, 'core/consumption/form.html', {
         'form': form,
         'title': 'Record Consumption',
-        'button_text': 'Save & Continue'
+        'button_text': 'Save & Continue',
+        'recent_records': recent_consumptions,
+        'materials_exist': materials_exist,
     })
 
 
@@ -263,6 +269,9 @@ def product_type_delete(request, pk):
 @login_required
 def production_history(request):
     """View production history"""
+    from itertools import groupby
+    from operator import attrgetter
+
     productions = DailyProduction.objects.select_related('product_type').all()
 
     # Filter by date range
@@ -277,10 +286,21 @@ def production_history(request):
     if product_filter:
         productions = productions.filter(product_type__id=product_filter)
 
+    # Order by date descending
+    productions = productions.order_by('-date', '-created_at')
+
+    # Group productions by date
+    productions_by_day = []
+    for date, group in groupby(productions, key=attrgetter('date')):
+        productions_by_day.append({
+            'date': date,
+            'productions': list(group)
+        })
+
     product_types = ProductType.objects.all().order_by('name')
 
     context = {
-        'productions': productions,
+        'productions_by_day': productions_by_day,
         'date_from': date_from,
         'date_to': date_to,
         'product_types': product_types,
@@ -305,10 +325,16 @@ def production_create(request):
     else:
         form = DailyProductionForm()
 
+    # Get recent production records and check if products exist
+    recent_productions = DailyProduction.objects.select_related('product_type').order_by('-created_at')[:10]
+    products_exist = ProductType.objects.exists()
+
     return render(request, 'core/production/form.html', {
         'form': form,
         'title': 'Record Production',
-        'button_text': 'Save & Continue'
+        'button_text': 'Save & Continue',
+        'recent_records': recent_productions,
+        'products_exist': products_exist,
     })
 
 
@@ -479,11 +505,19 @@ def purchase_order_create(request):
         form = PurchaseOrderForm()
         formset = PurchaseOrderItemFormSet()
 
+    # Get recent orders and check if customers/products exist
+    recent_orders = PurchaseOrder.objects.select_related('customer').order_by('-created_at')[:10]
+    customers_exist = Customer.objects.exists()
+    products_exist = ProductType.objects.exists()
+
     return render(request, 'core/orders/form.html', {
         'form': form,
         'formset': formset,
         'title': 'Create Purchase Order',
-        'button_text': 'Create Order'
+        'button_text': 'Create Order',
+        'recent_records': recent_orders,
+        'customers_exist': customers_exist,
+        'products_exist': products_exist,
     })
 
 
