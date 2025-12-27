@@ -66,7 +66,7 @@
                     <td>{{ consumption.raw_material.get_category_display }}</td>
                     <td>{{ consumption.quantity }} {{ consumption.raw_material.unit }}</td>
                     <td style="text-align: right;">
-                        <a href="{% url 'consumption_delete' consumption.pk %}" style="color: var(--danger-600);">Delete</a>
+                        <a href="{% url 'consumption_delete' consumption.pk %}" class="btn btn-sm btn-danger">Delete</a>
                     </td>
                 </tr>
                 {% endfor %}

@@ -54,8 +54,8 @@
                     <td>{{ material.get_category_display }}</td>
                     <td>{{ material.unit }}</td>
                     <td style="text-align: right;">
-                        <a href="{% url 'raw_material_edit' material.pk %}">Edit</a> |
-                        <a href="{% url 'raw_material_delete' material.pk %}" style="color: var(--danger-600);">Delete</a>
+                        <a href="{% url 'raw_material_edit' material.pk %}" class="btn btn-sm btn-secondary" style="margin-right: 8px;">Edit</a>
+                        <a href="{% url 'raw_material_delete' material.pk %}" class="btn btn-sm btn-danger">Delete</a>
                     </td>
                 </tr>
                 {% endfor %}

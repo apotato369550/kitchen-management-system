@@ -31,8 +31,8 @@
                     <td>{{ product.name }}</td>
                     <td>{{ product.description|truncatewords:10 }}</td>
                     <td style="text-align: right;">
-                        <a href="{% url 'product_type_edit' product.pk %}">Edit</a> |
-                        <a href="{% url 'product_type_delete' product.pk %}" style="color: var(--danger-600);">Delete</a>
+                        <a href="{% url 'product_type_edit' product.pk %}" class="btn btn-sm btn-secondary" style="margin-right: 8px;">Edit</a>
+                        <a href="{% url 'product_type_delete' product.pk %}" class="btn btn-sm btn-danger">Delete</a>
                     </td>
                 </tr>
                 {% endfor %}

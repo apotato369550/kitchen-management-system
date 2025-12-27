@@ -55,8 +55,9 @@
                     <td>{{ customer.purchase_orders.count }}</td>
                     <td>{{ customer.created_at|date:"M d, Y" }}</td>
                     <td style="text-align: right;">
-                        <a href="{% url 'customer_edit' customer.pk %}">Edit</a> |
-                        <a href="{% url 'customer_delete' customer.pk %}" style="color: var(--danger-600);">Delete</a>
+                        <a href="{% url 'customer_detail' customer.pk %}" class="btn btn-sm btn-primary" style="margin-right: 8px;">View</a>
+                        <a href="{% url 'customer_edit' customer.pk %}" class="btn btn-sm btn-secondary" style="margin-right: 8px;">Edit</a>
+                        <a href="{% url 'customer_delete' customer.pk %}" class="btn btn-sm btn-danger">Delete</a>
                     </td>
                 </tr>
                 {% endfor %}
