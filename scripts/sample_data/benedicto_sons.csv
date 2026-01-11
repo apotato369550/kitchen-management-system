@@ -1,0 +1,7 @@
+date,customer_name,customer_location,attention,phone,installation_location,doc_type,manager,warranty,payment,exceptions
+5/9/2024,BENEDICTO + SONS,Cebu City,Mrs. Emily B. Chioson - Owner,,One(1) unit Daikin Wall Mounted,job,N.J Yap,,Cash Upon Completion,(1)Power Supply (2)Circuit breaker and Gov't Fees
+
+[ITEMS]
+item_name,ac_brand,ac_model,task_name,task_cost,quantity,item_warranty
+Daikin Installation,Daikin,1hp Non-Inverter,Installation at 10ft base,7500,1,
+Daikin Installation,Daikin,1hp Non-Inverter,Additional installation (40ft total: 30ft excess),10500,1,

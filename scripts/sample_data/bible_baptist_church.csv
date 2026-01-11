@@ -1,0 +1,8 @@
+date,customer_name,customer_location,attention,phone,installation_location,doc_type,manager,warranty,payment,exceptions
+12/4/2023,Bible Baptist Church,Labangon Cebu City,Pastor Kent Jesalua ℅ Mr. Jun Emeliada,09664154541,Main Building,job,Neil John Yap,Standard Warranty from Daikin,Cash Before Delivery + Installation,
+
+[ITEMS]
+item_name,ac_brand,ac_model,task_name,task_cost,quantity,item_warranty
+Daikin Floor Mounted Installation,Daikin,6Hp (3 phase) 220volts,Unit Cost per Unit,99800,2,Standard Warranty from Daikin
+Daikin Floor Mounted Installation,Daikin,6Hp (3 phase) 220volts,Installation at 10ft base,12500,2,Standard Warranty from Daikin
+Daikin Floor Mounted Installation,Daikin,6Hp (3 phase) 220volts,Additional installation (92ft total: 72ft excess),25200,1,Standard Warranty from Daikin

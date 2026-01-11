@@ -1,0 +1,15 @@
+date,customer_name,customer_location,attention,phone,installation_location,doc_type,manager,warranty,payment,exceptions
+8/13/2024,Jamari Construction,Cebu City,Mr. Bryan Ong - Liaison Officer,0963 530 8910,5th Floor,summary,J.B Yap Jr.,Twelve (12) Months Only,70% - Down Payment 30% - Cash Upon Completion,(1)Power Supply (2)Circuit breaker and Gov't Fees
+
+[ITEMS]
+item_name,ac_brand,ac_model,task_name,task_cost,quantity,item_warranty
+Nursing Station Hall,Daikin,2Hp (Inverter),Installation at 10ft base,8000,1,Twelve (12) Months Only
+Nursing Station Hall,Daikin,2Hp (Inverter),Additional installation (32ft total: 22ft excess),7700,1,Twelve (12) Months Only
+Supervisor Room,Daikin,1Hp (Inverter),Installation at 10ft base,7500,1,Twelve (12) Months Only
+Supervisor Room,Daikin,1Hp (Inverter),Additional installation (15ft total: 5ft excess),1750,1,Twelve (12) Months Only
+Medicine Room,Daikin,1.5Hp (Inverter),Installation at 10ft base,7500,1,Twelve (12) Months Only
+Medicine Room,Daikin,1.5Hp (Inverter),Additional installation (18ft total: 8ft excess),2800,1,Twelve (12) Months Only
+Intern Quarter,Daikin,2Hp (Inverter),Installation at 10ft base,8000,1,Twelve (12) Months Only
+Intern Quarter,Daikin,2Hp (Inverter),Additional installation (48ft total: 38ft excess),13300,1,Twelve (12) Months Only
+Nurse Station,Daikin,2Hp (Inverter),Installation at 10ft base,8000,1,Twelve (12) Months Only
+Nurse Station,Daikin,2Hp (Inverter),Additional installation (32ft total: 22ft excess),7700,1,Twelve (12) Months Only

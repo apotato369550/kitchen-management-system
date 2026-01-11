@@ -1,0 +1,13 @@
+date,customer_name,customer_location,attention,phone,installation_location,doc_type,manager,warranty,payment,exceptions
+7/3/2025,Exquisite Pawnshop,Cebu City,,,One(1) unit Media Wall-mounted Air conditioner,job,J.B Yap Jr.,Ninety (90) days excluding compressor and all spare parts,COD (Cash on delivery),(1) Circuit breaker and Gov't Fees (2) Power Supply
+
+[ITEMS]
+item_name,ac_brand,ac_model,task_name,task_cost,quantity,item_warranty
+Media Wall-mounted AC,Media,Inverter,Pull down the AHU unit,0,1,Ninety (90) days excluding compressor and all spare parts
+Media Wall-mounted AC,Media,Inverter,Supply one(1) lot of welding gas and Silver rod,0,1,Ninety (90) days excluding compressor and all spare parts
+Media Wall-mounted AC,Media,Inverter,Check the Leak portion,0,1,Ninety (90) days excluding compressor and all spare parts
+Media Wall-mounted AC,Media,Inverter,Reweld the leak portion,0,1,Ninety (90) days excluding compressor and all spare parts
+Media Wall-mounted AC,Media,Inverter,Vacuuming,0,1,Ninety (90) days excluding compressor and all spare parts
+Media Wall-mounted AC,Media,Inverter,Reprocessing of the entire system,0,1,Ninety (90) days excluding compressor and all spare parts
+Media Wall-mounted AC,Media,Inverter,Recharging of refrigerant,0,1,Ninety (90) days excluding compressor and all spare parts
+Media Wall-mounted AC,Media,Inverter,Labor,5950,1,Ninety (90) days excluding compressor and all spare parts

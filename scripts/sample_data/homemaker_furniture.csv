@@ -1,0 +1,14 @@
+date,customer_name,customer_location,attention,phone,installation_location,doc_type,manager,warranty,payment,exceptions
+10/16/2025,Homemaker,Mandaue City,,,Multiple Locations,summary,J.B Yap Jr.,Ninety (90) days excluding compressor and all spare parts,Full Payment Before Repair + Cleaning,(1) Circuit breaker and Gov't Fees (2) Power Supply
+
+[ITEMS]
+item_name,ac_brand,ac_model,task_name,task_cost,quantity,item_warranty
+Sales Division,Panasonic,2.5Hp,General cleaning,600,1,None
+Ground Floor,Daikin,6Hp (Inverter),General cleaning,1500,1,None
+Administration,Haire,R410A,General cleaning,600,1,Ninety (90) Days only excluding compressor + all spare parts
+Administration,Haire,R410A,Supply one(1) lot of welding gas and Silver rod,0,1,Ninety (90) Days only excluding compressor + all spare parts
+Administration,Haire,R410A,Reprocessing of the entire system,0,1,Ninety (90) Days only excluding compressor + all spare parts
+Administration,Haire,R410A,Vacuuming,0,1,Ninety (90) Days only excluding compressor + all spare parts
+Administration,Haire,R410A,Supply + Replacement of Power supply wiring,0,1,Ninety (90) Days only excluding compressor + all spare parts
+Administration,Haire,R410A,Recharging of refrigerant,0,1,Ninety (90) Days only excluding compressor + all spare parts
+Administration,Haire,R410A,Labor,5750,1,Ninety (90) Days only excluding compressor + all spare parts
