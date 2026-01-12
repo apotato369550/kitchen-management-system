@@ -12,6 +12,8 @@ from pathlib import Path
 from docx import Document
 from docx.shared import Pt, RGBColor, Inches
 from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.oxml.ns import qn
+from docx.oxml import OxmlElement
 import subprocess
 
 # Constants
@@ -102,6 +104,21 @@ def parse_csv(csv_path):
 
     return header, items
 
+def add_horizontal_line(doc):
+    """Add a horizontal line to the document."""
+    p = doc.add_paragraph()
+    pPr = p._element.get_or_add_pPr()
+    pBdr = OxmlElement('w:pBdr')
+    bottom = OxmlElement('w:bottom')
+    bottom.set(qn('w:val'), 'single')
+    bottom.set(qn('w:sz'), '12')
+    bottom.set(qn('w:space'), '1')
+    bottom.set(qn('w:color'), '000000')
+    pBdr.append(bottom)
+    pPr.append(pBdr)
+    p.paragraph_format.space_before = Pt(6)
+    p.paragraph_format.space_after = Pt(6)
+
 def create_docx(header, items):
     """Create .docx file from parsed data."""
     doc = Document()
@@ -109,140 +126,260 @@ def create_docx(header, items):
     # Set margins
     sections = doc.sections
     for section in sections:
-        section.top_margin = Inches(0.5)
-        section.bottom_margin = Inches(0.5)
-        section.left_margin = Inches(0.75)
-        section.right_margin = Inches(0.75)
+        section.top_margin = Inches(0.6)
+        section.bottom_margin = Inches(0.6)
+        section.left_margin = Inches(0.8)
+        section.right_margin = Inches(0.8)
 
-    # Header
+    # Professional Header
     title = doc.add_paragraph()
     title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    title.paragraph_format.space_after = Pt(3)
     title_run = title.add_run(COMPANY_NAME)
     title_run.bold = True
-    title_run.font.size = Pt(14)
+    title_run.font.size = Pt(16)
+    title_run.font.name = 'Calibri'
 
-    # Location and contact
-    header_para = doc.add_paragraph()
-    header_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    header_para.add_run(f"{COMPANY_LOCATION}\n").font.size = Pt(11)
-    contact = header_para.add_run(f"Telephone Number: {COMPANY_PHONE} || Mobile Number: Sun-{COMPANY_MOBILE_SUN} Globe-{COMPANY_MOBILE_GLOBE}")
+    # Location
+    location_para = doc.add_paragraph()
+    location_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    location_para.paragraph_format.space_after = Pt(3)
+    location_run = location_para.add_run(f"{COMPANY_LOCATION}")
+    location_run.font.size = Pt(11)
+    location_run.font.name = 'Calibri'
+
+    # Horizontal line separator
+    add_horizontal_line(doc)
+
+    # Contact info
+    contact_para = doc.add_paragraph()
+    contact_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    contact_para.paragraph_format.space_after = Pt(2)
+    contact = contact_para.add_run(f"Telephone: {COMPANY_PHONE} | Mobile: Sun-{COMPANY_MOBILE_SUN} | Globe-{COMPANY_MOBILE_GLOBE}")
     contact.font.size = Pt(9)
+    contact.font.name = 'Calibri'
 
     # Services
     services_para = doc.add_paragraph()
     services_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    services_para.add_run(SERVICES).font.size = Pt(10)
+    services_para.paragraph_format.space_after = Pt(12)
+    services_run = services_para.add_run(SERVICES)
+    services_run.font.size = Pt(10)
+    services_run.font.name = 'Calibri'
 
-    doc.add_paragraph()  # Spacing
-
-    # Customer info
-    info_table = doc.add_table(rows=5, cols=2)
-    info_table.autofit = False
-
+    # Customer info section
     date_str = header.get('date', datetime.today().strftime("%m/%d/%Y"))
-    info_table.rows[0].cells[0].text = "Date:"
-    info_table.rows[0].cells[1].text = date_str
 
-    info_table.rows[1].cells[0].text = "To:"
-    info_table.rows[1].cells[1].text = header.get('customer_name', '')
+    date_para = doc.add_paragraph()
+    date_para.paragraph_format.space_after = Pt(3)
+    date_label = date_para.add_run("Date: ")
+    date_label.bold = True
+    date_label.font.name = 'Calibri'
+    date_val = date_para.add_run(date_str)
+    date_val.font.name = 'Calibri'
+
+    to_para = doc.add_paragraph()
+    to_para.paragraph_format.space_after = Pt(2)
+    to_label = to_para.add_run("To: ")
+    to_label.bold = True
+    to_label.font.name = 'Calibri'
+    to_val = to_para.add_run(header.get('customer_name', ''))
+    to_val.font.name = 'Calibri'
 
     if header.get('customer_location'):
-        info_table.rows[2].cells[0].text = ""
-        info_table.rows[2].cells[1].text = header['customer_location']
+        loc_para = doc.add_paragraph(header['customer_location'])
+        loc_para.paragraph_format.space_after = Pt(2)
+        loc_para.paragraph_format.left_indent = Inches(0.25)
+        for run in loc_para.runs:
+            run.font.name = 'Calibri'
 
     attention_text = header.get('attention', '')
     if header.get('phone'):
-        attention_text += f" - {header['phone']}"
+        attention_text += f" | {header['phone']}"
     if attention_text:
-        info_table.rows[3].cells[0].text = "Attention:"
-        info_table.rows[3].cells[1].text = attention_text
+        att_para = doc.add_paragraph()
+        att_para.paragraph_format.space_after = Pt(8)
+        att_label = att_para.add_run("Attention: ")
+        att_label.bold = True
+        att_label.font.name = 'Calibri'
+        att_val = att_para.add_run(attention_text)
+        att_val.font.name = 'Calibri'
 
-    doc.add_paragraph()
+    doc.add_paragraph()  # Spacing
 
     # Salutation
-    doc.add_paragraph("Sir/Madame,")
+    salutation = doc.add_paragraph("Sir/Madame,")
+    salutation.paragraph_format.space_after = Pt(8)
+    for run in salutation.runs:
+        run.font.name = 'Calibri'
 
     # Opening
-    opening = doc.add_paragraph(
-        "This is with reference to your request for quotation for the installation/repair of the "
-        "following air-conditioner to be installed at:"
-    )
+    opening = doc.add_paragraph()
+    opening.paragraph_format.space_after = Pt(8)
+    opening_text = ("This is with reference to your request for quotation for the installation/repair of the "
+                    "following air-conditioner to be installed at:")
+    opening_run = opening.add_run(opening_text)
+    opening_run.font.name = 'Calibri'
     if header.get('installation_location'):
-        opening.add_run(f" {header['installation_location']}")
+        loc_run = opening.add_run(f" {header['installation_location']}")
+        loc_run.font.name = 'Calibri'
 
-    doc.add_paragraph("We are pleased to quote the following:")
+    pleased = doc.add_paragraph("We are pleased to quote the following:")
+    pleased.paragraph_format.space_after = Pt(8)
+    for run in pleased.runs:
+        run.font.name = 'Calibri'
 
     # Items section
     doc_type = header.get('doc_type', 'summary')
-    if doc_type == "summary":
-        doc.add_heading("Summary of Quotations", level=2)
-    else:
-        doc.add_heading("Job to be done:", level=2)
+    heading_text = "Summary of Quotations" if doc_type == "summary" else "Job to be done:"
+    heading = doc.add_paragraph()
+    heading.paragraph_format.space_after = Pt(8)
+    heading_run = heading.add_run(heading_text)
+    heading_run.bold = True
+    heading_run.font.size = Pt(12)
+    heading_run.font.name = 'Calibri'
 
     grand_total = 0
     for i, item in enumerate(items, 1):
         # Item header
         item_header = doc.add_paragraph()
+        item_header.paragraph_format.space_before = Pt(6)
+        item_header.paragraph_format.space_after = Pt(3)
         item_header_run = item_header.add_run(f"{i}. {item['name']}")
         item_header_run.bold = True
+        item_header_run.font.size = Pt(11)
+        item_header_run.font.name = 'Calibri'
         if item.get('ac_brand'):
-            item_header.add_run(f" - {item['ac_brand']}")
+            brand_run = item_header.add_run(f" - {item['ac_brand']}")
+            brand_run.font.name = 'Calibri'
         if item.get('ac_model'):
-            item_header.add_run(f" {item['ac_model']}")
+            model_run = item_header.add_run(f" {item['ac_model']}")
+            model_run.font.name = 'Calibri'
 
         # Tasks
         for j, task in enumerate(item['tasks'], 1):
-            task_para = doc.add_paragraph(style="List Number")
-            task_para.text = f"{task['name']}"
+            task_para = doc.add_paragraph()
+            task_para.paragraph_format.left_indent = Inches(0.25)
+            task_para.paragraph_format.space_after = Pt(2)
+            task_num = task_para.add_run(f"{j}. ")
+            task_num.font.name = 'Calibri'
+            task_name = task_para.add_run(f"{task['name']}")
+            task_name.font.name = 'Calibri'
             if task['cost'] > 0:
-                task_para.text += f" – ₱{task['cost']:,.0f}"
+                cost_text = task_para.add_run(f" – ₱{task['cost']:,.0f}")
+                cost_text.font.name = 'Calibri'
             if task['quantity'] > 1:
-                task_para.text += f" × {task['quantity']} = ₱{task['cost'] * task['quantity']:,.0f}"
+                qty_text = task_para.add_run(f" × {task['quantity']} = ₱{task['cost'] * task['quantity']:,.0f}")
+                qty_text.font.name = 'Calibri'
 
         # Item total
         total_para = doc.add_paragraph()
-        total_para.paragraph_format.left_indent = Inches(0.5)
+        total_para.paragraph_format.left_indent = Inches(0.25)
+        total_para.paragraph_format.space_after = Pt(3)
         total_run = total_para.add_run(f"Total Price – ₱ {item['item_total']:,.2f}")
         total_run.bold = True
+        total_run.font.name = 'Calibri'
 
         # Item warranty
         if item.get('warranty'):
-            warranty_para = doc.add_paragraph(f"Warranty - {item['warranty']}")
-            warranty_para.paragraph_format.left_indent = Inches(0.5)
+            warranty_para = doc.add_paragraph()
+            warranty_para.paragraph_format.left_indent = Inches(0.25)
+            warranty_para.paragraph_format.space_after = Pt(8)
+            warranty_run = warranty_para.add_run(f"Warranty: {item['warranty']}")
+            warranty_run.font.name = 'Calibri'
 
         grand_total += item['item_total']
 
     # Grand total
     if len(items) > 1:
-        doc.add_paragraph()
         grand_para = doc.add_paragraph()
+        grand_para.paragraph_format.space_before = Pt(8)
+        grand_para.paragraph_format.space_after = Pt(12)
         grand_run = grand_para.add_run(f"Total Price of All Items – ₱ {grand_total:,.2f}")
         grand_run.bold = True
+        grand_run.font.name = 'Calibri'
 
-    doc.add_paragraph()
+    # Summary info section
+    add_horizontal_line(doc)
 
-    # Summary info
+    if header.get('note'):
+        note_para = doc.add_paragraph()
+        note_para.paragraph_format.space_after = Pt(6)
+        note_label = note_para.add_run("Note: ")
+        note_label.bold = True
+        note_label.font.name = 'Calibri'
+        note_val = note_para.add_run(header['note'])
+        note_val.font.name = 'Calibri'
+
     if header.get('payment'):
-        doc.add_paragraph(f"Terms of Payment: {header['payment']}")
+        payment_para = doc.add_paragraph()
+        payment_para.paragraph_format.space_after = Pt(3)
+        payment_label = payment_para.add_run("Terms of Payment: ")
+        payment_label.bold = True
+        payment_label.font.name = 'Calibri'
+        payment_val = payment_para.add_run(header['payment'])
+        payment_val.font.name = 'Calibri'
+
     if header.get('warranty'):
-        doc.add_paragraph(f"Warranty: {header['warranty']}")
+        warranty_para = doc.add_paragraph()
+        warranty_para.paragraph_format.space_after = Pt(3)
+        warranty_label = warranty_para.add_run("Warranty: ")
+        warranty_label.bold = True
+        warranty_label.font.name = 'Calibri'
+        warranty_val = warranty_para.add_run(header['warranty'])
+        warranty_val.font.name = 'Calibri'
+
     if header.get('exceptions'):
-        doc.add_paragraph(f"Exception: {header['exceptions']}")
+        excep_para = doc.add_paragraph()
+        excep_para.paragraph_format.space_after = Pt(12)
+        excep_label = excep_para.add_run("Exception: ")
+        excep_label.bold = True
+        excep_label.font.name = 'Calibri'
+        excep_val = excep_para.add_run(header['exceptions'])
+        excep_val.font.name = 'Calibri'
 
     # Closing
-    doc.add_paragraph()
-    doc.add_paragraph("Thank you very much for giving us the opportunity to quote and we hope to have the pleasure of serving you.")
+    thanks_para = doc.add_paragraph()
+    thanks_para.paragraph_format.space_before = Pt(6)
+    thanks_para.paragraph_format.space_after = Pt(12)
+    thanks_run = thanks_para.add_run("Thank you very much for giving us the opportunity to quote and we hope to have the pleasure of serving you.")
+    thanks_run.font.name = 'Calibri'
 
-    doc.add_paragraph()
+    doc.add_paragraph()  # Spacing
+
     closing = doc.add_paragraph("Very Truly Yours,")
-    closing.paragraph_format.space_after = Pt(36)
+    closing.paragraph_format.space_after = Pt(40)
+    for run in closing.runs:
+        run.font.name = 'Calibri'
 
     # Signature block
     sig_table = doc.add_table(rows=2, cols=2)
+    sig_table.autofit = False
     manager = header.get('manager', 'J.B Yap Jr.')
-    sig_table.rows[0].cells[0].text = "Conforme:_______________"
-    sig_table.rows[0].cells[1].text = manager
-    sig_table.rows[1].cells[0].text = "Date:_______________"
+
+    # Conforme line
+    conforme_cell = sig_table.rows[0].cells[0]
+    conforme_para = conforme_cell.paragraphs[0]
+    conforme_run = conforme_para.add_run("Conforme:_______________")
+    conforme_run.font.name = 'Calibri'
+
+    # Manager name cell
+    manager_cell = sig_table.rows[0].cells[1]
+    manager_para = manager_cell.paragraphs[0]
+    manager_name_run = manager_para.add_run(manager)
+    manager_name_run.font.name = 'Calibri'
+    manager_name_run.bold = True
+    manager_para.add_run("\n")
+    manager_title_run = manager_para.add_run("Manager")
+    manager_title_run.font.name = 'Calibri'
+
+    # Date line
+    date_cell = sig_table.rows[1].cells[0]
+    date_para = date_cell.paragraphs[0]
+    date_run = date_para.add_run("Date:_______________")
+    date_run.font.name = 'Calibri'
+
+    # Empty cell for second column
     sig_table.rows[1].cells[1].text = ""
 
     return doc
