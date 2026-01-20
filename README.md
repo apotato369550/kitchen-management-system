@@ -1,298 +1,363 @@
 # Cebu Best Value Trading - Kitchen Management System
 
-A Django-based kitchen management and purchase order tracking system for food businesses.
+Track raw materials, production output, and customer orders in one place. Fast data entry, mobile-friendly, minimal complexity.
 
-## Features
+## Quick Start
 
-- **Authentication System**: Secure admin-controlled user management
-- **Raw Materials Tracker**: Daily recording of consumed raw materials (meat, vegetables, oil, packaging)
-- **Production Tracker**: Daily tracking of production output (food packs, platters, bilao)
-- **Purchase Order Management**: Create and manage customer orders with staggered fulfillment tracking
-- **Data Export**: Export all data to Excel and PDF formats for reporting and backup
-- **Professional UI**: Light theme with enhanced typography, responsive cards/tables, and touch-friendly buttons for kitchen environment
-- **Empty State Warnings**: Clear notifications on forms when prerequisite data doesn't exist
-- **Recent Activity Sidebars**: Quick access to top 10 recently added records on create forms
-- **Production History Grouping**: Records grouped by date with visual day headers for easier scanning
+**What:** Track ingredients used, products made, and orders from customers.
 
-## Tech Stack
+**Requirements:** Python 3.12+, PostgreSQL database
 
-- **Backend**: Django 6.0
-- **Frontend**: Tailwind CSS
-- **Database**: PostgreSQL (Render)
-- **Hosting**: Vercel
-- **Python**: 3.12+
-
-## Prerequisites
-
-- Python 3.12 or higher
-- PostgreSQL database (via Render or another PostgreSQL provider)
-- Git
-
-## Development Setup
-
-### 1. Clone the Repository
+**Setup (local development):**
 ```bash
 git clone <repository-url>
 cd kitchen-management-system
-```
-
-### 2. Create Virtual Environment
-```bash
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
-
-### 3. Install Dependencies
-```bash
 pip install -r requirements.txt
 ```
 
-### 4. Configure Environment Variables
-Create a `.env` file in the root directory:
-```env
-# Render PostgreSQL Database Configuration
-SUPABASE_PROJECT_PASSWORD=your_password_here
-SUPABASE_HOST=your_render_postgres_host
-SUPABASE_PORT=5432
-SUPABASE_USER=your_db_user
+Configure `.env` file (see Installation section), then:
+```bash
+python manage.py setup_auth
+python manage.py migrate
+python manage.py runserver
+```
 
-# Django Secret Key (generate a new one for production)
-SECRET_KEY=your_secret_key_here
+Visit `http://127.0.0.1:8000/` to access the system.
 
-# Debug (set to False in production)
+---
+
+## Installation
+
+### Local Development Setup
+
+**1. Clone and set up environment**
+```bash
+git clone <repository-url>
+cd kitchen-management-system
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+**2. Create `.env` file in project root**
+
+Add database credentials (PostgreSQL via Render or Supabase):
+```
+DATABASE_URL=postgresql://user:password@host:5432/dbname
+SECRET_KEY=your-secret-key-here
 DEBUG=True
 ```
 
-**Important**: Never commit the `.env` file to version control.
-
-### 5. Run Migrations
+**3. Initialize database and user system**
 ```bash
-python manage.py migrate
+python manage.py setup_auth       # Creates Admin, Management, Viewer roles
+python manage.py migrate          # Applies all database migrations
+python manage.py createsuperuser  # Creates first admin account
 ```
 
-### 6. Create Superuser (Admin Account)
-```bash
-python manage.py createsuperuser
-```
-
-### 7. Run Development Server
+**4. Run development server**
 ```bash
 python manage.py runserver
 ```
 
-Visit `http://127.0.0.1:8000/` to view the application.
+Login at `http://127.0.0.1:8000/accounts/login/` with your superuser account.
 
-## Project Structure
+### Database Configuration
 
+Use PostgreSQL (Render or Supabase). Connection string format:
 ```
-kitchen-management-system/
-├── core/                          # Main application
-│   ├── migrations/                # Database migrations
-│   ├── templates/                 # HTML templates
-│   ├── static/                    # Static files (CSS, JS)
-│   ├── models.py                  # Database models
-│   ├── views.py                   # View functions
-│   ├── forms.py                   # Form classes
-│   ├── urls.py                    # URL routing
-│   └── admin.py                   # Admin configuration
-├── accounts/                      # Authentication app (future)
-├── kitchen_management_system/     # Project settings
-│   ├── settings.py                # Django settings
-│   ├── urls.py                    # Root URL configuration
-│   └── wsgi.py                    # WSGI configuration
-├── plans/                         # Implementation plans
-├── .env                           # Environment variables (not in git)
-├── manage.py                      # Django management script
-└── requirements.txt               # Python dependencies
+postgresql://username:password@host:port/database_name
 ```
 
-## Database Models
+For first deployment to Render, `build.sh` handles migrations and setup automatically.
 
-- **Customer**: Customer information and contact details
-- **RawMaterial**: Raw materials library with categories and units
-- **DailyConsumption**: Daily raw material consumption records
-- **ProductType**: Product types (food packs, platters, etc.)
-- **DailyProduction**: Daily production output records
-- **PurchaseOrder**: Customer purchase orders with status tracking
-- **PurchaseOrderItem**: Line items for each purchase order
-- **PurchaseOrderUpdate**: Update history for orders (comment-style)
+---
 
-## User Roles
+## Core Workflows
 
-- **Admin**: Full system access, can create and manage users
-- **Management**: Can manage daily operations (raw materials, production, orders)
+### Raw Materials
 
-## Development Workflow
+**What:** Maintain a catalog of ingredients and packaging (meat, vegetables, oil, etc.).
 
-### Making Database Changes
-1. Modify models in `core/models.py`
-2. Create migration: `python manage.py makemigrations`
-3. Review migration file in `core/migrations/`
-4. Apply migration: `python manage.py migrate`
+**How to use:**
+1. Go to **Materials** menu
+2. Click **Add Material**, enter name, category, unit (kg, liters, pieces)
+3. Click **Save**
 
-### Running Tests
+Use materials when recording daily consumption. Export as Excel/PDF from the materials list.
+
+---
+
+### Daily Consumption Tracker
+
+**What:** Record how much of each material was used today.
+
+**How to use:**
+1. Go to **Consumption** menu
+2. Click **Record Usage**
+3. Select material, enter quantity used, date
+4. Check "Add Another" to log multiple entries without page reload
+5. Click **Save**
+
+View consumption history with date and category filters. Delete and re-create records if corrections needed (no edit option). Export as Excel/PDF.
+
+---
+
+### Product Types
+
+**What:** Define what you sell (food packs, platters, individual dishes, etc.).
+
+**How to use:**
+1. Go to **Products** menu
+2. Click **Add Product**, enter name and optional description
+3. Click **Save**
+
+Use products when recording production and creating customer orders.
+
+---
+
+### Daily Production Tracker
+
+**What:** Record how many of each product you made today.
+
+**How to use:**
+1. Go to **Production** menu
+2. Click **Record Production**
+3. Select product type, enter quantity made, date
+4. Optionally add contents description (ingredient notes)
+5. Check "Add Another" for fast sequential entry
+6. Click **Save**
+
+Records group by date in history view. Delete and re-create if corrections needed. Export as Excel/PDF.
+
+---
+
+### Customers
+
+**What:** Maintain list of who you sell to.
+
+**How to use:**
+1. Go to **Customers** menu
+2. Click **Add Customer**, enter name and optional contact info
+3. Click **Save**
+
+View all orders from a customer by clicking their name. Edit or delete customer info anytime. Deleting a customer also removes all their orders.
+
+---
+
+### Purchase Orders
+
+**What:** Create and track customer orders with partial delivery tracking.
+
+**How to use:**
+
+**Create an order:**
+1. Go to **Orders** menu, click **Create Order**
+2. Select customer
+3. Add items: select product type and quantity ordered
+4. Click "Add More" to add additional products
+5. Click **Create**
+
+**Track fulfillment:**
+1. From order detail page, click **Log Delivery Update**
+2. Enter delivery note (e.g., "First batch delivered")
+3. Optionally enter quantity delivered
+4. Click **Save**
+
+**Change order status:**
+1. From order detail page, click **Change Status**
+2. Select new status (pending, in progress, completed, cancelled)
+3. Click **Update**
+
+**Understand order progress:**
+- Each order shows overall fulfillment % (how much delivered vs. ordered)
+- Progress = (total items fulfilled / total items ordered) × 100
+- Full delivery: all items at or above ordered quantity
+
+---
+
+## Key Concepts
+
+**Staggered Fulfillment:** Orders don't need full delivery at once. Record partial deliveries over multiple days. Each update logs a delivery event with date and quantity.
+
+**Order Progress %:** Shows fulfillment status. 50% = half of ordered items delivered. 100% = all items delivered (can exceed 100% if over-delivered).
+
+**Data Export:** From any module list (Materials, Consumption, Products, Production, Customers, Orders), click **Export to Excel** or **Export to PDF** to download formatted reports with timestamps and summaries.
+
+**Separate Tracking:** Raw materials and production are tracked independently. No automatic links between ingredient usage and product output. Track both manually as needed.
+
+**Records Can't Be Edited:** For consumption and production, delete the record and re-create it if a mistake is made. For raw materials, products, and customers, edit directly.
+
+---
+
+## Troubleshooting
+
+**"I can't see the Orders menu"**
+- Check your login role. You need Admin or Management role. Ask admin to create your account.
+
+**"I made a mistake in a consumption record"**
+- Delete the record (click trash icon) and create a new one with correct data.
+
+**"I can't delete a product"**
+- The product is used in active orders. Check all orders for that product first.
+
+**"My order isn't showing updated progress"**
+- Log a delivery update first, then manually update fulfillment quantities from order detail page if needed.
+
+**"Where's my exported file?"**
+- Check your browser downloads folder. Files named like: `materials_excel_2025-01-20_14-30-45.xlsx`
+
+**Database connection fails on startup**
+- Verify `.env` has correct `DATABASE_URL`
+- Confirm PostgreSQL host is reachable
+- Check port 5432 is accessible from your machine
+
+---
+
+## For Admins
+
+### User Management
+
+**Access:** Go to **Admin** menu (visible if you're superuser), click **Users**
+
+**Create user:**
+1. Click **Create User**
+2. Enter username, first/last name, email
+3. Set password
+4. Select role: Admin (full access) or Management (operations only)
+5. Click **Create**
+
+**Edit user:**
+1. Find user in list, click their name
+2. Update fields or change role
+3. Click **Save**
+
+**Delete user:**
+1. Find user in list, click their name
+2. Click **Delete**, confirm
+
+**User profile:** Any user can go to **Profile** to change their own password.
+
+### User Roles Explained
+
+| Role | Can Do | Used For |
+|------|--------|----------|
+| Admin | Create users, manage all operations | Kitchen manager or owner |
+| Management | Record consumption, production, orders, customers | Kitchen staff |
+| Viewer | Reserved for future read-only access | (Not yet implemented) |
+
+### First-Time Setup
+
+On Render deployment:
+1. `build.sh` automatically runs `python manage.py setup_auth`
+2. This creates the three role groups (Admin, Management, Viewer)
+3. A superuser is created with credentials from environment variables
+4. Database migrations apply automatically
+
+For local development, manually run:
 ```bash
-python manage.py test
-```
-
-### Creating a New App
-```bash
-python manage.py startapp app_name
-```
-Add the app to `INSTALLED_APPS` in `settings.py`.
-
-### Accessing Django Admin
-1. Ensure you've created a superuser (see step 6 above)
-2. Visit `http://127.0.0.1:8000/admin/`
-3. Login with superuser credentials
-
-## Deployment
-
-### Vercel Deployment
-1. Install Vercel CLI: `npm i -g vercel`
-2. Configure `vercel.json` (see deployment docs)
-3. Set environment variables in Vercel dashboard
-4. Deploy: `vercel --prod`
-
-### Environment Variables for Production
-Set these in your Vercel dashboard:
-- `SUPABASE_PROJECT_PASSWORD` (Render database password)
-- `SUPABASE_HOST` (Render PostgreSQL host)
-- `SUPABASE_PORT` (Usually 5432 for Render)
-- `SUPABASE_USER` (Render database user)
-- `SECRET_KEY` (Strong, unique key for production)
-- `DEBUG=False`
-
-### Security Checklist for Production
-- [ ] Set `DEBUG=False`
-- [ ] Configure `ALLOWED_HOSTS`
-- [ ] Use strong `SECRET_KEY`
-- [ ] Enable HTTPS (Vercel does this automatically)
-- [ ] Set secure cookie flags in settings
-- [ ] Review CORS settings
-- [ ] Set up proper logging
-
-## Common Commands
-
-```bash
-# Start development server
-python manage.py runserver
-
-# Create migrations
-python manage.py makemigrations
-
-# Apply migrations
+python manage.py setup_auth
 python manage.py migrate
-
-# Create superuser
 python manage.py createsuperuser
-
-# Open Django shell
-python manage.py shell
-
-# Collect static files (for production)
-python manage.py collectstatic
-
-# Run tests
-python manage.py test
-
-# Check for issues
-python manage.py check
 ```
 
-## Data Export
+---
 
-### Excel Export
-Export any data module to Excel format:
-- **Raw Materials**: `/raw-materials/export/excel/`
-- **Consumption**: `/consumption/export/excel/`
-- **Products**: `/product-types/export/excel/`
-- **Production**: `/production/export/excel/`
-- **Customers**: `/customers/export/excel/`
-- **Orders**: `/orders/export/excel/`
+## Common Tasks
 
-### PDF Export
-Export any data module to PDF format:
-- **Raw Materials**: `/raw-materials/export/pdf/`
-- **Consumption**: `/consumption/export/pdf/`
-- **Products**: `/product-types/export/pdf/`
-- **Production**: `/production/export/pdf/`
-- **Customers**: `/customers/export/pdf/`
-- **Orders**: `/orders/export/pdf/`
+**Log raw material usage:** Consumption → Record Usage → Select material, quantity, date → Add Another if multiple → Save
 
-All exports include:
-- Formatted headers with company branding
-- Export timestamp
-- Summary statistics
-- Professional styling for print/sharing
+**Record what you produced:** Production → Record Production → Select product, quantity, date → Add Another if multiple → Save
+
+**Create customer order:** Orders → Create Order → Select customer → Add items (product + quantity) → Create
+
+**Track order delivery:** Orders → [Select order] → Log Delivery Update → Add delivery note → Save
+
+**Export data for reporting:** [Any module list] → Export to Excel (or PDF) → Download file
+
+**Check a customer's history:** Customers → [Click customer name] → View all their orders
+
+**View system overview:** Dashboard (home page) shows counts of all records
+
+---
+
+## Tech Stack
+
+- **Language:** Python 3.12+
+- **Framework:** Django 6.0
+- **Database:** PostgreSQL
+- **Frontend:** Tailwind CSS (dark mode enabled)
+- **Export:** Excel (openpyxl), PDF (ReportLab)
+- **Deployment:** Render (Render PostgreSQL or Supabase for local dev)
+
+---
+
+## Deployment to Render
+
+The system is configured for one-command deployment to Render.
+
+**Prerequisites:**
+- GitHub repository with code pushed to `main` branch
+- Render account linked to GitHub
+- PostgreSQL database created in Render
+
+**Process:**
+1. Push code to GitHub `main` branch
+2. Render automatically detects changes and deploys
+3. `build.sh` handles setup (migrations, user groups, static files)
+4. Environment variables (ADMIN_USERNAME, ADMIN_PASSWORD, etc.) configured in Render dashboard
+5. System available at Render-provided domain
+
+**First Deploy Only:** Superuser created with `ADMIN_USERNAME` and `ADMIN_PASSWORD` from environment.
+
+---
+
+## Database Schema
+
+All models use UUID for unique IDs.
+
+- **Customer:** Contact information, linked to orders
+- **RawMaterial:** Ingredients/packaging catalog (name, category, unit)
+- **DailyConsumption:** Dated records of material usage
+- **ProductType:** Sellable products (name, optional description)
+- **DailyProduction:** Dated records of product output
+- **PurchaseOrder:** Customer orders, status tracked (pending, in progress, completed, cancelled)
+- **PurchaseOrderItem:** Line items in orders (product, quantity ordered, quantity fulfilled)
+- **PurchaseOrderUpdate:** Delivery event log (notes, quantities, dates)
+
+---
 
 ## Testing & Sample Data
 
-### Run Tests
-Test all CRUD operations in the system:
-```bash
-python manage.py test_data_operations
-```
-
-### Populate Sample Data
-Create realistic sample data for demos and testing:
+### Create sample data
 ```bash
 python manage.py test_data_operations --populate
 ```
 
-This creates:
-- 5 raw materials with various categories
-- 3 product types
-- 4 sample customers
-- 2 production records
-- 2 purchase orders
+Creates 5 materials, 3 products, 4 customers, 2 production records, 2 orders. All prefixed with `SAMPLE_` for easy identification.
 
-All sample data is marked with `SAMPLE_` prefix for easy identification and deletion.
-
-### Clear Sample Data
-Remove all sample data from the database:
+### Clear sample data
 ```bash
 python manage.py test_data_operations --clear-samples
 ```
 
-### Verbose Testing
-Run tests with detailed output:
+### Run CRUD tests
 ```bash
-python manage.py test_data_operations --verbose
+python manage.py test_data_operations
 ```
 
-### Test Specific Module
-Test a specific module's operations:
-```bash
-python manage.py test_data_operations --test raw_materials
-```
+Tests create, read, update, delete operations across all modules.
 
-Available modules: `raw_materials`, `consumption`, `product_types`, `production`, `customers`, `purchase_orders`
+---
 
-## Troubleshooting
-
-### Database Connection Issues
-- Verify `.env` file contains correct Render PostgreSQL credentials
-- Check that Render PostgreSQL database is active and running
-- Ensure port 5432 is accessible from your environment
-
-### Migration Issues
-- Delete `core/migrations/` except `__init__.py`
-- Run `python manage.py makemigrations core`
-- Run `python manage.py migrate`
-
-### Static Files Not Loading
-- Run `python manage.py collectstatic`
-- Check `STATIC_URL` and `STATIC_ROOT` in settings
-
-## Contributing
+## Support
 
 This is a private project. For questions or issues, contact the project owner.
+
+---
 
 ## License
 
 Proprietary - All rights reserved
-
-## Contact
-
-For support or questions, contact: [Your Email]

@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Comprehensive Documentation Suite (Scalpel Phase 1)**
+  - `ARCHITECTURE.md` (2,200+ lines): Deterministic, greppable system architecture with all 40+ endpoints, 8 data models, 10 critical gotchas, export patterns, permission matrix, and grep index
+  - **README.md** (364 lines): Rewritten user-centric documentation for end users (kitchen staff, managers, admins) with quick start, installation, 6 core workflows, troubleshooting, and admin guide
+  - **CLAUDE.md** (302 lines): Enhanced with 5 new agent-facing sections—data model constraints, permission & role model, view architecture, critical gaps, and working guidelines with file:line references
+
+---
+
 ## [0.3.1] - 2025-12-27
 
 ### Changed
